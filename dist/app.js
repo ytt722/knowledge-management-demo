@@ -1,8 +1,16 @@
+function makeDomain(id,name,icon,color,desc,org,team,services,progress,scene,object,topic,owner){
+  return {id,name,icon,color,desc,org,team,services,progress,scene,object,topic,region:'中国区',owner,
+    samples:{docs:[`${name}知识管理办法.pdf`,`${scene}规则与口径.docx`,`${object}指标清单.xlsx`,`${name}专题复盘.pptx`],sets:[`${topic}规则集`,`${scene}归因集`,`${name}策略集`],knowledge:[`${topic}异常预警规则`,`${object}关键指标规则`,`${object} → ${topic}知识路径`],query:`${topic}出现异常时如何处理？`,answer:`系统依据${name}领域已认证规则识别${topic}异常，并返回处置建议、责任角色与完整来源证据。`}};
+}
 const domains = [
-  {id:'analytics',name:'智能分析',icon:'析',color:'#2864ff',desc:'经营指标、归因、预警与决策知识',org:324,services:6,docs:128,progress:82,scene:'收入经营',object:'渠道业绩',topic:'收入',region:'中国区',owner:'财经知识专委会',samples:{docs:['2026年Q3区域TOB经营分析报告.pdf','渠道收入预警规则与阈值说明.docx','经营指标根因树V3.xlsx','渠道库存专项复盘.pptx'],sets:['渠道收入预警','渠道库存归因','渠道激励策略'],knowledge:['渠道销售收入环比降幅预警','渠道库存周转天数异常','销售收入 → 总经销商业绩'],query:'收入下降多少需要预警？',answer:'销售收入环比下降 ≥ 15% 时触发黄色预警，下钻客户与产品线定位损失来源。'}},
-  {id:'contract',name:'合同管理',icon:'合',color:'#795ee8',desc:'条款、风险、履约与合规知识',org:218,services:4,docs:96,progress:68,scene:'合同风险',object:'采购合同',topic:'履约',region:'中国区',owner:'合同管理专委会',samples:{docs:['采购合同风险审查指引.pdf','违约责任条款标准库.docx','供应商履约风险清单.xlsx','重大合同复盘案例.pptx'],sets:['违约责任条款','供应商履约风险','合同续签策略'],knowledge:['付款逾期违约责任规则','供应商交付延期风险','采购合同 → 履约责任路径'],query:'供应商延期交付如何追责？',answer:'当交付延期超过合同约定期限时，按违约责任条款计算违约金并启动履约升级流程。'}},
-  {id:'project',name:'项目管理',icon:'项',color:'#14a888',desc:'交付、里程碑、风险与复盘知识',org:176,services:3,docs:84,progress:61,scene:'项目交付',object:'交付项目',topic:'进度风险',region:'亚太区',owner:'项目管理专委会',samples:{docs:['项目交付管理规范.pdf','里程碑延期处置手册.docx','项目风险登记册.xlsx','重点项目复盘.pptx'],sets:['里程碑延期预警','交付风险归因','项目复盘经验'],knowledge:['关键里程碑延期预警','资源投入不足风险','计划偏差 → 交付影响路径'],query:'里程碑延期如何预警？',answer:'关键里程碑预计延期超过 5 个工作日时触发预警，并评估资源、依赖与客户影响。'}},
-  {id:'customer',name:'客户经营',icon:'客',color:'#e58a2f',desc:'客户画像、商机、服务与运营知识',org:142,services:2,docs:73,progress:54,scene:'客户经营',object:'战略客户',topic:'商机转化',region:'全球',owner:'客户经营专委会',samples:{docs:['战略客户经营指引.pdf','商机转化阶段规则.docx','客户健康度指标.xlsx','重点客户复盘.pptx'],sets:['客户流失预警','商机转化归因','客户运营策略'],knowledge:['战略客户流失风险预警','商机停滞风险','客户需求 → 商机转化路径'],query:'哪些信号说明客户可能流失？',answer:'客户满意度连续下降且关键联系人互动减少时触发流失预警，并启动客户关怀与高层拜访。'}}
+  makeDomain('operation','经营','经','#2864ff','经营指标、分析、预警与决策知识',324,186,6,82,'经营分析','经营单元','经营目标','经营管理专委会'),
+  makeDomain('accounting','账务','账','#795ee8','核算、账期、对账与关账知识',286,154,5,78,'核算管理','会计科目','账务核算','账务管理专委会'),
+  makeDomain('funds','资金','资','#13a88a','资金计划、支付、融资与风险知识',248,139,4,73,'资金运营','资金账户','资金安全','资金管理专委会'),
+  makeDomain('tax','税务','税','#e58a2f','税收政策、申报、筹划与合规知识',218,126,4,69,'税务管理','纳税主体','税务合规','税务管理专委会'),
+  makeDomain('finance-law','财经法务','法','#d95c76','财经制度、法律条款与风险知识',196,108,3,64,'财经合规','财经事项','法律风险','财经法务专委会'),
+  makeDomain('subsidiary','子公司管理','子','#4d83d4','公司治理、授权、经营与监督知识',174,96,3,61,'子公司治理','下属公司','治理监督','子公司管理专委会'),
+  makeDomain('pricing','定价','价','#7f68c9','价格策略、授权、测算与审批知识',152,88,3,58,'价格管理','产品服务','定价策略','定价管理专委会'),
+  makeDomain('quality','质量运营','质','#2f9aa0','质量指标、问题、改进与运营知识',138,74,2,55,'质量运营','质量事件','质量改进','质量运营专委会')
 ];
 const stages = [
   {id:'intake',label:'知识接入',icon:'↗',hint:'集成 · 打标 · 建集'},
@@ -18,7 +26,7 @@ const roles = [
   {id:'owner',name:'领域知识责任人',short:'责',desc:'审批知识是否准确、适用且可进入正式知识库'},
   {id:'committee',name:'领域专委会责任人',short:'委',desc:'最终定性：决定知识是否成为组织级知识'}
 ];
-const navItems=[{id:'overview',label:'领域首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'operations',label:'运营看板',icon:'▦'}];
+const navItems=[{id:'overview',label:'首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'operations',label:'运营看板',icon:'▦'}];
 const demoDocs=[
   {id:1,name:'2026年Q3区域TOB经营分析报告.pdf',type:'PDF',source:'财经知识圈',owner:'李明',tags:['区域TOB','政企','渠道业绩','收入','中国区'],status:'已解析',quality:96},
   {id:2,name:'渠道收入预警规则与阈值说明.docx',type:'DOC',source:'3MS',owner:'王璐',tags:['区域TOB','政企','渠道业绩','收入','中国区'],status:'待解析',quality:89},
@@ -40,7 +48,7 @@ const serviceTypes={
   graph:{name:'知识图谱',tag:'精确检索',icon:'⌘',desc:'将对象、属性、关系和规则写入图谱，支持条件组合、关系路径与精确匹配。',steps:['实体对齐','关系建图','图谱索引'],endpoint:'/api/knowledge/graph/query'},
   hybrid:{name:'混合模式',tag:'语义 + 精确检索',icon:'✣',desc:'语义召回候选知识，再用领域标签与图谱关系精排，兼顾覆盖率和准确性。',steps:['双路建索引','融合排序','证据聚合'],endpoint:'/api/knowledge/hybrid/search'}
 };
-const state={route:location.hash.slice(1)||'overview',domain:'analytics',role:'admin',completed:[],selectedDocs:new Set([1,2,3]),selectedSet:'revenue',selectedRecord:'K-001',fields:{},approved:false,certified:false,serviceMode:'hybrid',built:false,published:false};
+const state={route:location.hash.slice(1)||'overview',domain:'operation',role:'admin',completed:[],selectedDocs:new Set([1,2,3]),selectedSet:'revenue',selectedRecord:'K-001',fields:{},approved:false,certified:false,serviceMode:'hybrid',built:false,published:false};
 docSets.forEach(s=>state.fields[s.id]=[...s.fields]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]));
@@ -66,12 +74,12 @@ function renderShell(){
   $('#stage-strip').innerHTML=stages.map((s,i)=>`<button class="stage-chip ${state.route===s.id?'active':''} ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><span class="num">${state.completed.includes(s.id)?'✓':i+1}</span><span>${s.label}</span></button>`).join('');
   const role=roles.find(r=>r.id===state.role);$('#role-name').textContent=role.name;$('#role-avatar').textContent=role.short;
   $('#role-menu').innerHTML=roles.map(r=>`<div class="role-option" data-role="${r.id}"><span class="avatar">${r.short}</span><span><b>${r.name}</b><p>${r.desc}</p></span></div>`).join('');
-  $('#page-crumb').textContent=navItems.find(x=>x.id===state.route)?.label||'领域首页';
+  $('#page-crumb').textContent=navItems.find(x=>x.id===state.route)?.label||'首页';
   const pct=Math.round(state.completed.length/stages.length*100);$('#side-progress').style.width=pct+'%';$('#progress-label').textContent=`旅程进度 ${pct}%`;document.querySelector('.sidebar-foot small').textContent=`${domain().name} · ${domain().scene}`;
 }
-function overview(){return `${pageHead('KNOWLEDGE FOUNDATION','领域知识首页','从领域入口进入独立知识旅程；每个领域拥有自己的知识资产、知识服务与治理进度。','<button class="btn" data-action="reset">重置演示</button><button class="btn" data-route="operations">查看运营数据</button>')}
-  <section class="domain-grid">${domains.map(d=>`<button class="domain-card ${d.id===state.domain?'selected':''}" data-domain="${d.id}" style="--domain:${d.color}"><div class="domain-card-head"><span class="domain-badge">${d.icon}</span><span class="domain-status">${d.progress>=70?'运行中':'建设中'}</span></div><h3>${d.name}</h3><p>${d.desc}</p><div class="domain-numbers"><span><b>${d.org}</b><small>组织级知识</small></span><span><b>${d.services}</b><small>知识服务</small></span><span><b>${d.docs}</b><small>接入文档</small></span></div><div class="domain-progress"><i style="width:${d.progress}%"></i></div><footer><span>${d.owner}</span><b>进入管理流程 →</b></footer></button>`).join('')}</section>
-  <div class="card journey journey-home"><div class="card-title"><div><h3>${domain().name}知识旅程概览</h3><p>参考 v2 快速入口，将领域数据转化为可检索、可复用的业务知识服务</p></div><span class="status info">当前：${domain().scene}</span></div><div class="journey-flow">${stages.map(s=>`<div class="journey-node ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><div class="orb">${s.icon}</div><b>${s.label}</b><small>${s.hint}</small></div>`).join('')}</div><div class="value-flow"><span><i>1</i><b>原始数据</b><small>结构化 / 非结构化</small></span><em>→</em><span><i>2</i><b>智能处理</b><small>AI 提取 / 映射生成</small></span><em>→</em><span><i>3</i><b>本体和图谱</b><small>对象 / 属性 / 关系</small></span><em>→</em><span><i>4</i><b>业务价值</b><small>问答 / API / MCP / A2A</small></span></div></div>`}
+function overview(){return `${pageHead('KNOWLEDGE FOUNDATION','首页','从领域入口进入独立知识旅程；每个领域拥有自己的知识资产、知识服务与治理进度。','<button class="btn" data-action="reset">重置演示</button><button class="btn" data-route="operations">查看运营数据</button>')}
+  <section class="domain-grid">${domains.map(d=>`<button class="domain-card ${d.id===state.domain?'selected':''}" data-domain="${d.id}" style="--domain:${d.color}"><div class="domain-card-head"><span class="domain-badge">${d.icon}</span><span class="domain-status">${d.progress>=70?'运行中':'建设中'}</span></div><h3>${d.name}</h3><p>${d.desc}</p><div class="domain-numbers"><span><b>${d.org}</b><small>组织知识资产</small></span><span><b>${d.team}</b><small>团队知识资产</small></span><span><b>${d.services}</b><small>知识服务</small></span></div><div class="domain-progress"><i style="width:${d.progress}%"></i></div><footer><span>${d.owner}</span><b>进入管理流程 →</b></footer></button>`).join('')}</section>
+  <div class="card journey journey-home"><div class="card-title"><div><h3>${domain().name}知识旅程概览</h3><p>参考 v2 快速入口，将领域数据转化为可检索、可复用的业务知识服务</p></div><span class="status info">当前：${domain().scene}</span></div><div class="journey-flow">${stages.map(s=>`<div class="journey-node ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><div class="orb">${s.icon}</div><b>${s.label}</b><small>${s.hint}</small></div>`).join('')}</div><div class="value-flow"><span><i>1</i><b>原始数据</b><small>结构化 / 非结构化</small></span><em>→</em><span><i>2</i><b>智能处理</b><small>AI 提取 / 映射生成</small></span><em>→</em><span><i>3</i><b>向量和图谱</b><small>语义向量 / 实体 / 关系</small></span><em>→</em><span><i>4</i><b>业务价值</b><small>精确检索 / 语义检索 / 知识可溯源 / 知识自演进</small></span></div></div>`}
 function intake(){const d=domain();return `${context()}${pageHead('STAGE 01 · 领域知识管理员','知识接入与场景打标',`在“${d.name}”领域内接入公开文档，按场景标签组合形成特定文档集。`,'<button class="btn">接入日志</button><button class="btn primary" data-action="upload">＋ 上传文档</button>')}
   <div class="source-cards">${[['公','公司公开文档','已同步'],['3M','3MS','已同步'],['iL','iLearning / Wiki','已同步'],['＋','本地经验材料','可上传']].map((x,i)=>`<div class="source-card ${i<3?'on':''}"><span class="source-logo">${x[0]}</span><span><b>${x[1]}</b><small>${x[2]}</small></span></div>`).join('')}</div>
   <div class="upload-zone" data-action="upload"><span class="upload-icon">⇧</span><span><b>上传或拖入多模态文档</b><small>支持 PDF、Office、图片、邮件和音视频；系统自动识别元数据</small></span><span class="status info">单文件 ≤ 50MB</span></div>
@@ -97,7 +105,7 @@ function modal(title,body,confirm='完成',onConfirm){$('#modal-root').innerHTML
 function closeModal(){$('#modal-root').innerHTML=''}
 function handleAction(a,el){
   if(a==='toggle-help')return modal('Demo 操作说明','<div class="notice">首页先选择领域，再按 6 个阶段完成领域知识管理。知识服务构建阶段可切换知识切片、知识图谱和混合模式；跨领域统计统一进入运营看板。</div>','知道了');
-  if(a==='reset'){state.domain='analytics';state.completed=[];state.approved=false;state.certified=false;state.built=false;state.published=false;toast('演示状态已重置');return render()}
+  if(a==='reset'){state.domain='operation';syncDomainSamples();state.completed=[];state.approved=false;state.certified=false;state.built=false;state.published=false;toast('演示状态已重置');return render()}
   if(a==='upload')return modal('上传领域文档','<div class="check-row"><input type="checkbox" checked><span><b>领域材料.pdf</b><small>12.4 MB · 待识别元数据</small></span></div><div class="form-field"><label>归属领域</label><input value="'+domain().name+'"></div>','上传并解析',()=>toast('文档已加入接入队列'));
   if(a==='apply-tags')return toast(`已为 ${state.selectedDocs.size} 份文档应用场景标签`);
   if(a==='create-set')return modal('创建特定文档集','<div class="form-field"><label>文档集名称</label><input value="'+domain().region+' · '+domain().scene+'"></div><div class="notice" style="margin-top:12px">保存当前标签组合，并在知识抽取阶段独立配置字段。</div>','创建',()=>toast('文档集已创建'));
