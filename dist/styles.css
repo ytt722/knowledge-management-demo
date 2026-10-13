@@ -96,4 +96,6 @@ main { min-width: 0; }.topbar { height: 72px; padding: 0 30px; display:flex; ali
 .intake-tabs{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));overflow-x:auto}
  .domain-card footer{justify-content:flex-end}
 @media(max-width:620px){.intake-tabs{grid-template-columns:repeat(3,minmax(180px,1fr))}}
+.rule-config-toolbar{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin:14px 0}.pipeline-rule-list{display:grid;gap:10px;margin-bottom:12px}.pipeline-rule-block{border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:12px;padding:12px;background:#fbfcff}.pipeline-rule-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.pipeline-rule-head small,.pipeline-rule-head b{display:block}.pipeline-rule-head small{font-size:8px;color:var(--muted);margin-bottom:2px}.pipeline-rule-head b{font-size:11px}.pipeline-rule-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.pipeline-rule-fields .form-field{margin:0}.pipeline-rule-fields label{font-size:8px}.pipeline-rule-fields select{font-size:9px;padding:8px}
+@media(max-width:620px){.rule-config-toolbar{grid-template-columns:1fr}.pipeline-rule-fields{grid-template-columns:1fr 1fr}}
 @media print{.sidebar,.topbar,.stage-strip{display:none}.app-shell{display:block}.page{padding:0}.card{box-shadow:none}}
