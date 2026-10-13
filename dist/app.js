@@ -70,12 +70,36 @@ const records=[
   {id:'K-002',type:'预警规则',title:'渠道库存周转天数异常',confidence:92,status:'待确认',indicator:'库存周转天数',logic:'连续两期高于目标值',threshold:'> 45 天',advice:'联动 Sell-out 与在途库存复核'},
   {id:'K-003',type:'指标路径',title:'销售收入 → 总经销商业绩',confidence:88,status:'待确认',indicator:'销售收入',logic:'按渠道类型拆解贡献',threshold:'—',advice:'优先分析卓越级 NA 业绩与分销业绩'}
 ];
+const sceneEnumOptions={
+  '责任中心':['集团财经','区域TOB','子公司经营部','质量运营中心'],
+  '业务域':['经营管理','账务核算','资金运营','税务管理'],
+  '对象':['经营单元','渠道','产品线','客户群'],
+  '主题':['经营目标','收入预警','盈利改善','库存周转'],
+  '适用区域':['中国区','华东区','华南区','全球']
+};
+const reviewResults={
+  warning:[
+    {id:'W-001',confidence:96,status:'待确认',values:{'知识标题':'渠道销售收入环比降幅预警','责任中心':'区域TOB','业务域':'经营管理','对象':'渠道','主题':'收入预警','适用区域':'中国区','文档类型':'PDF','预警指标':'销售收入','规则逻辑':'本期销售收入环比下降','阈值条件':'≥ 15%','处置建议':'下钻客户与产品线，定位收入损失来源'}},
+    {id:'W-002',confidence:92,status:'待确认',values:{'知识标题':'渠道库存周转天数异常','责任中心':'集团财经','业务域':'经营管理','对象':'渠道','主题':'库存周转','适用区域':'华东区','文档类型':'DOCX','预警指标':'库存周转天数','规则逻辑':'连续两期高于目标值','阈值条件':'> 45 天','处置建议':'联动 Sell-out 与在途库存复核'}},
+    {id:'W-003',confidence:88,status:'待确认',values:{'知识标题':'经营单元利润率偏差预警','责任中心':'子公司经营部','业务域':'经营管理','对象':'经营单元','主题':'盈利改善','适用区域':'华南区','文档类型':'XLSX','预警指标':'利润率','规则逻辑':'实际利润率低于预算目标','阈值条件':'偏差 ≥ 5pp','处置建议':'复核价格、成本与产品结构贡献'}}
+  ],
+  strategy:[
+    {id:'S-001',confidence:94,status:'待确认',values:{'知识标题':'低效渠道专项改善策略','责任中心':'区域TOB','业务域':'经营管理','对象':'渠道','主题':'盈利改善','适用区域':'中国区','来源系统':'知识圈','问题描述':'低效渠道收入与利润连续两个周期未达标','改进动作':'按客户与产品拆解损失，关闭无效投入并调整激励','责任角色':'区域经营负责人','执行周期':'30 天','预期效果':'渠道利润率提升 3 个百分点'}},
+    {id:'S-002',confidence:91,status:'待确认',values:{'知识标题':'高库存产品清理策略','责任中心':'集团财经','业务域':'经营管理','对象':'产品线','主题':'库存周转','适用区域':'华东区','来源系统':'3MS','问题描述':'重点产品库存周转天数持续偏高','改进动作':'制定分层清理计划并联动销售激励','责任角色':'供应链与销售负责人','执行周期':'60 天','预期效果':'库存周转天数下降 10 天'}},
+    {id:'S-003',confidence:87,status:'待确认',values:{'知识标题':'重点客户收入恢复策略','责任中心':'子公司经营部','业务域':'经营管理','对象':'客户群','主题':'经营目标','适用区域':'华南区','来源系统':'Wiki','问题描述':'重点客户收入环比下降','改进动作':'建立客户恢复清单并按周追踪机会转化','责任角色':'客户经营负责人','执行周期':'4 周','预期效果':'重点客户收入恢复至目标线'}}
+  ],
+  cause:[
+    {id:'C-001',confidence:93,status:'待确认',values:{'知识标题':'销售收入下降归因关系','业务域':'经营管理','对象':'经营单元','主题':'收入预警','起点指标':'销售收入','驱动因素':'重点客户流失、产品销量下降','分析维度':'区域 / 客户 / 产品','关系类型':'驱动'}},
+    {id:'C-002',confidence:90,status:'待确认',values:{'知识标题':'利润率偏差归因关系','业务域':'经营管理','对象':'产品线','主题':'盈利改善','起点指标':'利润率','驱动因素':'价格下降、单位成本上升','分析维度':'产品 / 区域 / 渠道','关系类型':'影响'}},
+    {id:'C-003',confidence:86,status:'待确认',values:{'知识标题':'库存周转异常归因关系','业务域':'经营管理','对象':'渠道','主题':'库存周转','起点指标':'库存周转天数','驱动因素':'Sell-out 放缓、在途库存增加','分析维度':'渠道 / 产品 / 周期','关系类型':'驱动'}}
+  ]
+};
 const serviceTypes={
   slice:{name:'知识切片',tag:'语义检索',icon:'≋',desc:'把正式知识按对象与场景切分并向量化，支持自然语言问答与相似内容召回。',steps:['内容切片','向量化','语义索引'],endpoint:'/api/knowledge/semantic/search'},
   graph:{name:'知识图谱',tag:'精确检索',icon:'⌘',desc:'将对象、属性、关系和规则写入图谱，支持条件组合、关系路径与精确匹配。',steps:['实体对齐','关系建图','图谱索引'],endpoint:'/api/knowledge/graph/query'},
   hybrid:{name:'混合模式',tag:'语义 + 精确检索',icon:'✣',desc:'语义召回候选知识，再用领域标签与图谱关系精排，兼顾覆盖率和准确性。',steps:['双路建索引','融合排序','证据聚合'],endpoint:'/api/knowledge/hybrid/search'}
 };
-const state={route:location.hash.slice(1)||'overview',domain:'operation',role:'admin',completed:[],selectedDocs:new Set([1,2,3]),selectedKnowledge:new Set([1,2]),selectedSet:'revenue',selectedModel:'warning',taskSets:new Set(['revenue','strategy']),selectedRecord:'K-001',fields:{},approved:false,certified:false,serviceMode:'hybrid',built:false,published:false,intakeTab:'integration',integrationMode:'system',autoRule:true,qualityRule:true};
+const state={route:location.hash.slice(1)||'overview',domain:'operation',role:'admin',completed:[],selectedDocs:new Set([1,2,3]),selectedKnowledge:new Set([1,2]),selectedSet:'revenue',selectedModel:'warning',taskSets:new Set(['revenue','strategy']),selectedRecord:'K-001',reviewModel:'warning',reviewRecord:'W-001',fields:{},approved:false,certified:false,serviceMode:'hybrid',built:false,published:false,intakeTab:'integration',integrationMode:'system',autoRule:true,qualityRule:true};
 docSets.forEach(s=>state.fields[s.id]=[...s.fields]);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]));
@@ -134,7 +158,7 @@ function setBuildPanel(){const d=domain();return `<div class="set-workbench"><as
 function taggingPanel(){const d=domain();return `<div class="tagging-layout"><div class="panel"><div class="panel-head"><div><h3>场景化标签体系</h3><small>标签随当前领域和知识场景继承</small></div><button class="btn small" data-action="manage-tags">标签管理</button></div><div class="panel-body tag-dimensions">${[['责任中心',['财经','区域经营','共享中心']],['业务域',[d.name,d.scene]],['对象',[d.object,'经营单元','指标']],['主题',[d.topic,'风险预警','复盘改进']],['适用区域',[d.region,'亚太区','全球']]].map(x=>`<div><b>${x[0]}</b><span>${x[1].map((t,i)=>`<button class="tag ${i===0?'active':''}">${t}</button>`).join('')}</span></div>`).join('')}</div></div><div class="panel"><div class="panel-head"><div><h3>待打标签知识</h3><small>可选择单条或多条知识批量应用标签</small></div><span class="status info">已选 ${state.selectedKnowledge.size} 条</span></div>${knowledgeMemberTable()}<div class="batch-footer"><span class="notice">当前将应用：责任中心 / 业务域 / 对象 / 主题 / 适用区域</span><span class="spacer"></span><button class="btn primary" data-action="save-tags">应用到所选知识</button></div></div></div>`}
 function intake(){const d=domain();const tabs=[['integration','知识集成','系统集成与离线上传'],['set','知识集构建','自动规则与手动添加'],['tagging','知识打标签','场景标签与批量操作']];return `${context()}${pageHead('STAGE 01 · 领域知识管理员','知识接入',`在“${d.name}”领域完成知识集成、知识集构建与场景化打标。`,'<button class="btn">接入日志</button>')}<div class="intake-tabs">${tabs.map((x,i)=>`<button class="intake-tab ${state.intakeTab===x[0]?'active':''}" data-intake-tab="${x[0]}"><span>${i+1}</span><b>${x[1]}</b><small>${x[2]}</small></button>`).join('')}</div>${state.intakeTab==='integration'?`<div class="integration-switch"><button class="${state.integrationMode==='system'?'active':''}" data-integration-mode="system">系统集成 <small>8 条管道</small></button><button class="${state.integrationMode==='offline'?'active':''}" data-integration-mode="offline">离线上传 <small>多格式文档</small></button></div>${integrationPanel()}`:state.intakeTab==='set'?setBuildPanel():taggingPanel()}<div class="action-bar"><span class="notice">知识集每日 00:00 自动执行规则添加与质量检查，所有变更均记录操作日志。</span><span class="spacer"></span><button class="btn primary" data-action="finish-intake">完成知识接入并进入解析 →</button></div>`}
 
-function renderPage(){const map={overview,intake,parse,extract:extractV2,review,approval,service,operations};$('#page').innerHTML=(map[state.route]||overview)();if(state.route==='intake'&&state.intakeTab==='set'){const p=document.querySelectorAll('.rule-card p');if(p[0])p[0].textContent='已配置 2 个管道：知识圈（圈子名称、发布时间）· 3MS（责任部门、文档类型、专业领域、发布时间）';if(p[1])p[1].textContent='规则 + AI：全文字数 > 500；5 个标签维度至少命中 3 个枚举维度'}}
+function renderPage(){const map={overview,intake,parse,extract:extractV2,review:reviewV2,approval,service,operations};$('#page').innerHTML=(map[state.route]||overview)();if(state.route==='intake'&&state.intakeTab==='set'){const p=document.querySelectorAll('.rule-card p');if(p[0])p[0].textContent='已配置 2 个管道：知识圈（圈子名称、发布时间）· 3MS（责任部门、文档类型、专业领域、发布时间）';if(p[1])p[1].textContent='规则 + AI：全文字数 > 500；5 个标签维度至少命中 3 个枚举维度'}}
 function render(){renderShell();renderPage();bindDynamic()}
 function bindDynamic(){
   document.querySelectorAll('[data-route]').forEach(x=>x.onclick=()=>go(x.dataset.route));
@@ -143,6 +167,10 @@ function bindDynamic(){
   document.querySelectorAll('[data-domain]').forEach(x=>x.onclick=()=>{state.domain=x.dataset.domain;syncDomainSamples();state.completed=[];state.approved=false;state.certified=false;state.built=false;state.published=false;go('intake')});
   document.querySelectorAll('[data-mode]').forEach(x=>x.onclick=()=>{state.serviceMode=x.dataset.mode;state.built=false;state.published=false;render()});
   document.querySelectorAll('[data-model]').forEach(x=>x.onclick=()=>{state.selectedModel=x.dataset.model;render()});
+  document.querySelectorAll('[data-review-model]').forEach(x=>x.onclick=()=>{state.reviewModel=x.dataset.reviewModel;state.reviewRecord=(reviewResults[state.reviewModel]||[])[0]?.id;render()});
+  document.querySelectorAll('[data-review-result]').forEach(x=>x.onclick=()=>{state.reviewRecord=x.dataset.reviewResult;render()});
+  document.querySelectorAll('[data-review-filter]').forEach(x=>{x.oninput=applyReviewFilters;x.onchange=applyReviewFilters});
+  document.querySelectorAll('[data-filter-mode]').forEach(x=>x.onclick=()=>{const select=document.getElementById(x.dataset.filterTarget);if(!select)return;x.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===x));select.multiple=x.dataset.filterMode==='multi';if(!select.multiple&&select.selectedOptions.length>1)select.value=select.selectedOptions[0]?.value||'';applyReviewFilters()});
   document.querySelectorAll('[data-set]').forEach(x=>x.onclick=()=>{state.selectedSet=x.dataset.set;render()});
   document.querySelectorAll('[data-record]').forEach(x=>x.onclick=()=>{state.selectedRecord=x.dataset.record;render()});
   document.querySelectorAll('.doc-check').forEach(x=>x.onchange=()=>{const id=+x.dataset.id;x.checked?state.selectedDocs.add(id):state.selectedDocs.delete(id);render()});
@@ -192,11 +220,13 @@ function handleAction(a,el){
   if(a==='save-extract-task')return toast(`抽取任务已保存，已选择 ${state.taskSets.size} 个知识集`);
   if(a==='run-extract-task'){markDone('extract');toast(`抽取任务已启动：${state.taskSets.size} 个知识集，2 个知识模型`);return render()}
   if(a==='finish-extract'){markDone('extract');toast('抽取与消歧完成');return go('review')}
+  if(a==='clear-review-filters'){document.querySelectorAll('[data-review-filter]').forEach(x=>{if(x.tagName==='SELECT'){[...x.options].forEach((o,i)=>o.selected=i===0)}else x.value=''});applyReviewFilters();return toast('筛选条件已清空')}
+  if(a==='preview-evidence')return modal('原文证据定位',`<div class="evidence"><b>${domain().samples.docs[0]}</b><p>系统已定位到第 18 页对应段落，并保留原文页码、坐标与抽取规则版本。</p><mark>当前知识字段可逐项回溯至原文证据。</mark></div>`,'关闭');
   if(a==='add-record')return modal('人工补录知识','<div class="form-field"><label>知识名称</label><input placeholder="请输入"></div><div class="form-field" style="margin-top:12px"><label>来源与说明</label><textarea></textarea></div>','保存',()=>toast('知识已补录'));
   if(a==='batch-confirm')return toast('已确认 9 条高置信知识');
   if(a==='drop-record')return toast('该条知识已放弃并记录原因');
   if(a==='save-record')return toast('修改已保存并留痕');
-  if(a==='confirm-record'){records.find(x=>x.id===state.selectedRecord).status='已确认';toast('知识已确认');return render()}
+  if(a==='confirm-record'){if(state.route==='review'){const item=(reviewResults[state.reviewModel]||[]).find(x=>x.id===state.reviewRecord);if(item)item.status='已确认'}else{const item=records.find(x=>x.id===state.selectedRecord);if(item)item.status='已确认'}toast('知识已确认');return render()}
   if(a==='submit-approval'){markDone('review');toast('已提交领域知识责任人');return go('approval')}
   if(a==='reject-owner')return toast('知识包已退回专家修订');
   if(a==='approve-owner'){state.approved=true;toast('审批通过，已流转专委会');return render()}
@@ -205,6 +235,31 @@ function handleAction(a,el){
   if(a==='publish-service'){state.built=true;state.published=true;markDone('service');toast(`${serviceTypes[state.serviceMode].name}已构建并发布`);return render()}
   if(a==='test-service')return toast('检索测试完成：命中 1 条可信知识');
   if(a==='copy-endpoint')return toast('调用地址已复制');
+}
+function reviewFilterControl(field,idx){
+  const [name,type,source]=field;
+  if(source==='场景标签'&&sceneEnumOptions[name])return `<div class="review-filter-item enum-filter"><div class="review-filter-label"><span>${name}</span><div class="filter-mode"><button class="active" type="button" data-filter-mode="single" data-filter-target="review-filter-${idx}">单选</button><button type="button" data-filter-mode="multi" data-filter-target="review-filter-${idx}">多选</button></div></div><select id="review-filter-${idx}" data-review-filter="${name}"><option value="">全部${name}</option>${sceneEnumOptions[name].map(x=>`<option>${x}</option>`).join('')}</select></div>`;
+  return `<div class="review-filter-item"><label>${name}<small>${type}</small></label><div class="review-search"><span>⌕</span><input data-review-filter="${name}" placeholder="模糊搜索${name}"></div></div>`;
+}
+function reviewFieldControl(field,value){
+  const [name,type,source]=field;
+  if(source==='场景标签'&&sceneEnumOptions[name])return `<div class="form-field"><label>${name}<em>继承场景标签</em></label><select>${sceneEnumOptions[name].map(x=>`<option ${x===value?'selected':''}>${x}</option>`).join('')}</select></div>`;
+  return `<div class="form-field${type==='长文本'?' full':''}"><label>${name}<em>${source}</em></label>${type==='长文本'?`<textarea>${esc(value||'')}</textarea>`:`<input value="${esc(value||'')}">`}</div>`;
+}
+function reviewV2(){
+  const model=knowledgeModels.find(x=>x.id===state.reviewModel)||knowledgeModels[0];const results=reviewResults[model.id]||[];let record=results.find(x=>x.id===state.reviewRecord)||results[0];if(record)state.reviewRecord=record.id;
+  return `${context()}${pageHead('STAGE 04 · 领域知识专家','专家确认抽取结果','按知识结构呈现独立确认表单；切换知识结构后，可筛选、核对并修订该结构下的抽取结果。','<button class="btn" data-action="add-record">＋ 补录知识</button><button class="btn primary" data-action="batch-confirm">批量确认高置信结果</button>')}
+  <div class="review-summary"><span><b>${knowledgeModels.length}</b><small>知识结构表单</small></span><span><b>${Object.values(reviewResults).flat().length}</b><small>待确认抽取结果</small></span><span><b>91%</b><small>平均置信度</small></span><div class="review-summary-note">每一种知识结构对应一张独立表单，字段随模型定义自动变化。</div></div>
+  <div class="review-model-tabs">${knowledgeModels.map(x=>`<button class="review-model-tab ${x.id===model.id?'active':''}" data-review-model="${x.id}"><span class="model-table-icon">▦</span><span><b>${x.name}</b><small>${x.fields.length} 个字段 · ${(reviewResults[x.id]||[]).length} 条结果</small></span>${x.id===model.id?'<em>当前表单</em>':''}</button>`).join('')}</div>
+  <section class="panel review-filter-panel"><div class="panel-head"><div><h3>${model.name} · 字段筛选</h3><small>非枚举字段支持模糊搜索；场景标签可切换单选或多选</small></div><button class="btn small" data-action="clear-review-filters">清空筛选</button></div><div class="review-filter-grid">${model.fields.map(reviewFilterControl).join('')}</div><div class="review-filter-foot"><span id="review-filter-count">当前显示 ${results.length} / ${results.length} 条</span><small>筛选条件仅作用于当前“${model.name}”表单</small></div></section>
+  <div class="review-workbench"><section class="panel review-results-panel"><div class="panel-head"><div><h3>${model.name}抽取结果</h3><small>选择一条结果进入右侧表单确认</small></div>${badge(`${results.length} 条`)}</div><div class="review-result-list">${results.map(x=>`<button class="review-result ${x.id===record?.id?'active':''}" data-review-result="${x.id}" data-review-values="${esc(JSON.stringify(x.values))}"><span class="result-icon">${model.name.slice(0,1)}</span><span><b>${x.values['知识标题']}</b><small>${x.id} · ${x.status}</small></span><em>${x.confidence}%</em></button>`).join('')}<div class="review-empty">没有符合当前条件的抽取结果</div></div></section>
+  <section class="panel review-form-panel"><div class="panel-head"><div><h3>${record?.values['知识标题']||model.name}</h3><small>表单：${model.name} · 结果编号 ${record?.id||'—'}</small></div>${badge(record?.status||'待确认')}</div><div class="panel-body"><div class="review-form-hint"><span>▦</span><div><b>${model.name}确认表单</b><small>字段来自知识模型定义；场景标签已随原文档自动带出，其他字段由系统抽取。</small></div><span class="confidence-pill">置信度 ${record?.confidence||0}%</span></div><div class="form-grid review-form-grid">${record?model.fields.map(x=>reviewFieldControl(x,record.values[x[0]])).join(''):''}</div><div class="evidence review-evidence"><b>来源证据</b><span>${domain().samples.docs[0]} · 第 18 页</span><mark>${record?.values['规则逻辑']||record?.values['问题描述']||record?.values['驱动因素']||'已定位与该条知识对应的原文证据'}</mark><button class="btn small" data-action="preview-evidence">查看原文</button></div><div class="action-bar"><button class="btn danger" data-action="drop-record">放弃</button><span class="spacer"></span><button class="btn" data-action="save-record">保存修改</button><button class="btn success" data-action="confirm-record">确认知识</button></div></div></section></div>
+  <div class="action-bar"><span class="notice">完成各知识结构表单确认后，统一提交领域知识责任人审批。</span><span class="spacer"></span><button class="btn primary" data-action="submit-approval">提交审批与认证 →</button></div>`;
+}
+function applyReviewFilters(){
+  const controls=[...document.querySelectorAll('[data-review-filter]')];let shown=0;
+  document.querySelectorAll('[data-review-values]').forEach(row=>{let values={};try{values=JSON.parse(row.dataset.reviewValues)}catch(e){}const matched=controls.every(control=>{const key=control.dataset.reviewFilter;const selected=control.tagName==='SELECT'&&control.multiple?[...control.selectedOptions].map(x=>x.value).filter(Boolean):[control.value].filter(Boolean);if(!selected.length)return true;const actual=String(values[key]||'').toLowerCase();return control.tagName==='SELECT'?selected.some(x=>actual===x.toLowerCase()):actual.includes(selected[0].toLowerCase())});row.hidden=!matched;if(matched)shown++});
+  document.querySelector('.review-empty')?.classList.toggle('show',shown===0);const count=document.querySelector('#review-filter-count');if(count)count.textContent=`当前显示 ${shown} / ${document.querySelectorAll('[data-review-values]').length} 条`;
 }
 $('#role-switcher').onclick=e=>{if(e.target.closest('.role-option'))return;$('#role-switcher').classList.toggle('open')};
 document.addEventListener('click',e=>{const r=e.target.closest('[data-role]');if(r){state.role=r.dataset.role;$('#role-switcher').classList.remove('open');toast(`已切换为${roles.find(x=>x.id===state.role).name}视角`);render()}});
