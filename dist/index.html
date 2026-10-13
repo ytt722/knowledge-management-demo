@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1533">
   <title>知识底座 · 领域知识管理</title>
   <meta name="description" content="多领域知识管理与知识服务构建交互演示">
-  <link rel="stylesheet" href="./styles.css?v=16">
+  <link rel="stylesheet" href="./styles.css?v=18">
 </head>
 <body>
   <div class="app-shell">
@@ -23,6 +23,12 @@
         <div class="breadcrumb"><span>知识管理</span><b>/</b><strong id="page-crumb">旅程总览</strong></div>
         <div class="top-actions">
           <button class="icon-btn" data-action="toggle-help" aria-label="演示说明">?</button>
+          <div class="domain-switcher" id="domain-switcher" tabindex="0" aria-label="切换领域">
+            <span class="top-domain-badge" id="top-domain-badge">经</span>
+            <span><small>当前领域</small><b id="top-domain-name">经营</b></span>
+            <span class="chev">⌄</span>
+            <div class="domain-menu" id="domain-menu"></div>
+          </div>
           <div class="role-switcher" id="role-switcher" tabindex="0" aria-label="切换角色">
             <span class="avatar" id="role-avatar">管</span>
             <span><small>当前视角</small><b id="role-name">领域知识管理员</b></span>
@@ -38,6 +44,6 @@
   </div>
   <div id="toast" class="toast" role="status"></div>
   <div id="modal-root"></div>
-  <script src="./app.js?v=16"></script>
+  <script src="./app.js?v=18"></script>
 </body>
 </html>

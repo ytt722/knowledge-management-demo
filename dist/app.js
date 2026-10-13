@@ -16,8 +16,9 @@ const stages = [
   {id:'intake',label:'知识接入',icon:'↗',hint:'集成 · 打标 · 建集'},
   {id:'parse',label:'多模态解析',icon:'◫',hint:'解析 · 质检 · 准入'},
   {id:'extract',label:'知识抽取',icon:'◇',hint:'结构 · 字段 · 生成'},
-  {id:'review',label:'专家确认',icon:'✓',hint:'确认 · 修改 · 补录'},
-  {id:'approval',label:'审批与认证',icon:'◎',hint:'责任审批 · 专委认证'},
+  {id:'review',label:'知识审核',icon:'✓',hint:'专家确认 · 修改 · 补录'},
+  {id:'approval',label:'知识审批',icon:'◉',hint:'责任人审批 · 准确适用'},
+  {id:'certification',label:'知识认证',icon:'◎',hint:'专委会定性 · 组织级'},
   {id:'service',label:'知识服务构建',icon:'⌁',hint:'入库 · 索引 · 发布'}
 ];
 const roles = [
@@ -26,7 +27,13 @@ const roles = [
   {id:'owner',name:'领域知识责任人',short:'责',desc:'审批知识是否准确、适用且可进入正式知识库'},
   {id:'committee',name:'领域专委会责任人',short:'委',desc:'最终定性：决定知识是否成为组织级知识'}
 ];
-const navItems=[{id:'overview',label:'首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'operations',label:'运营看板',icon:'▦'}];
+const navItems=[{id:'overview',label:'首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'storage',label:'知识入库',icon:'▤'},{id:'operations',label:'运营看板',icon:'▦'}];
+const homeJourneyGroups=[
+  {no:'01',name:'知识接入',icon:'↗',desc:'连接企业知识源，形成高质量领域知识集',route:'intake',items:[['知识集成','系统管道 / 离线上传'],['知识集构建','自动规则 / 质量过滤'],['知识打标签','场景标签 / 批量操作']]},
+  {no:'02',name:'知识加工',icon:'◇',desc:'把多模态资料转化为结构化领域知识',route:'parse',items:[['多模态解析','文本 / 表格 / 图像'],['知识结构','模型表 / 字段定义'],['知识抽取','任务编排 / 自动抽取']]},
+  {no:'03',name:'知识审核与认证',icon:'✓',desc:'三个角色分工把关，完成组织级知识治理',route:'review',items:[['知识审核','领域知识专家'],['知识审批','领域知识责任人'],['知识认证','领域专委会责任人']]},
+  {no:'04',name:'知识服务',icon:'⌁',desc:'正式入库并构建可消费的检索服务',route:'storage',items:[['知识入库','版本化 / 可追溯'],['检索服务构建','语义 / 精确 / 混合'],['知识消费','API / MCP / Agent']]}
+];
 const demoDocs=[
   {id:1,name:'2026年Q3区域TOB经营分析报告.pdf',type:'PDF',source:'财经知识圈',owner:'李明',tags:['区域TOB','政企','渠道业绩','收入','中国区'],status:'已解析',quality:96},
   {id:2,name:'渠道收入预警规则与阈值说明.docx',type:'DOC',source:'3MS',owner:'王璐',tags:['区域TOB','政企','渠道业绩','收入','中国区'],status:'待解析',quality:89},
@@ -114,17 +121,21 @@ function syncDomainSamples(){
   records[0].advice=domain().samples.answer;
 }
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2200)}
-function go(route){state.route=route;location.hash=route;render();window.scrollTo({top:0,behavior:'auto'})}
+function go(route){state.route=route;const routeRole={review:'expert',approval:'owner',certification:'committee'};state.role=routeRole[route]||(['overview','operations'].includes(route)?state.role:'admin');location.hash=route;render();window.scrollTo({top:0,behavior:'auto'})}
 function markDone(id){if(!state.completed.includes(id))state.completed.push(id)}
 function badge(status){const cls=status.includes('已')||status.includes('通过')||status.includes('正式')?'ok':status.includes('异常')||status.includes('驳回')?'bad':status.includes('待')||status.includes('构建')?'warn':'info';return `<span class="status ${cls}">${status}</span>`}
 function pageHead(kicker,title,desc,actions=''){return `<div class="page-head"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p>${desc}</p></div><div class="head-actions">${actions}</div></div>`}
-function context(){const d=domain();return `<div class="domain-context"><span class="domain-badge" style="--domain:${d.color}">${d.icon}</span><span><small>当前领域</small><b>${d.name} · ${d.scene}</b></span><button class="btn small" data-route="overview">切换领域</button></div>`}
+function context(){return ''}
 function renderShell(){
-  $('#main-nav').innerHTML='<div class="nav-group-label">知识工作台</div>'+navItems.map(n=>`<button class="nav-item ${state.route===n.id?'active':''}" data-route="${n.id}"><span class="nav-icon">${n.icon}</span><span class="nav-label">${n.label}</span>${n.id==='review'?'<span class="nav-badge">12</span>':''}</button>`).join('');
+  const navButton=(id,label,icon,sub=false,badgeText='')=>`<button class="nav-item ${sub?'nav-subitem':''} ${state.route===id?'active':''}" data-route="${id}"><span class="nav-icon">${icon}</span><span class="nav-label">${label}</span>${badgeText?`<span class="nav-badge">${badgeText}</span>`:''}</button>`;
+  const navCluster=(label,icon,routes,items)=>`<div class="nav-cluster ${routes.includes(state.route)?'open':''}"><div class="nav-parent"><span class="nav-icon">${icon}</span><span>${label}</span><i>⌄</i></div><div class="nav-children">${items.join('')}</div></div>`;
+  $('#main-nav').innerHTML=`<div class="nav-group-label">首页</div>${navButton('overview','领域与知识底座旅程','⌂')}<div class="nav-group-label">知识工程</div>${navButton('intake','知识接入','↗')}${navCluster('知识加工','◇',['parse','extract'],[navButton('parse','多模态解析','◫',true),navButton('extract','知识抽取','◇',true)])}${navCluster('知识审核与认证','◎',['review','approval','certification'],[navButton('review','知识审核','✓',true,'12'),navButton('approval','知识审批','◉',true),navButton('certification','知识认证','◎',true)])}${navCluster('知识服务','⌁',['storage','service'],[navButton('storage','知识入库','▤',true),navButton('service','检索服务构建','⌁',true)])}<div class="nav-group-label nav-ops-label">知识运营</div>${navButton('operations','运营看板','▦')}`;
   $('#stage-strip').style.display=['overview','operations'].includes(state.route)?'none':'flex';
-  $('#stage-strip').innerHTML=stages.map((s,i)=>`<button class="stage-chip ${state.route===s.id?'active':''} ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><span class="num">${state.completed.includes(s.id)?'✓':i+1}</span><span>${s.label}</span></button>`).join('');
+  $('#stage-strip').innerHTML=stages.map((s,i)=>`<button class="stage-chip ${(state.route===s.id||(state.route==='storage'&&s.id==='service'))?'active':''} ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><span class="num">${state.completed.includes(s.id)?'✓':i+1}</span><span>${s.label}</span></button>`).join('');
   const role=roles.find(r=>r.id===state.role);$('#role-name').textContent=role.name;$('#role-avatar').textContent=role.short;
   $('#role-menu').innerHTML=roles.map(r=>`<div class="role-option" data-role="${r.id}"><span class="avatar">${r.short}</span><span><b>${r.name}</b><p>${r.desc}</p></span></div>`).join('');
+  const currentDomain=domain();$('#top-domain-name').textContent=currentDomain.name;$('#top-domain-badge').textContent=currentDomain.icon;$('#top-domain-badge').style.background=currentDomain.color;
+  $('#domain-menu').innerHTML=domains.map(d=>`<button class="domain-option ${d.id===state.domain?'active':''}" data-domain="${d.id}"><span style="--domain:${d.color}">${d.icon}</span><b>${d.name}</b><small>${d.services} 个知识服务</small></button>`).join('');
   $('#page-crumb').textContent=navItems.find(x=>x.id===state.route)?.label||'首页';
 }
 function overview(){return `${pageHead('KNOWLEDGE FOUNDATION','首页','从领域入口进入独立知识旅程；每个领域拥有自己的知识资产、知识服务与治理进度。','<button class="btn" data-route="operations">查看运营数据</button>')}
@@ -158,13 +169,13 @@ function setBuildPanel(){const d=domain();return `<div class="set-workbench"><as
 function taggingPanel(){const d=domain();return `<div class="tagging-layout"><div class="panel"><div class="panel-head"><div><h3>场景化标签体系</h3><small>标签随当前领域和知识场景继承</small></div><button class="btn small" data-action="manage-tags">标签管理</button></div><div class="panel-body tag-dimensions">${[['责任中心',['财经','区域经营','共享中心']],['业务域',[d.name,d.scene]],['对象',[d.object,'经营单元','指标']],['主题',[d.topic,'风险预警','复盘改进']],['适用区域',[d.region,'亚太区','全球']]].map(x=>`<div><b>${x[0]}</b><span>${x[1].map((t,i)=>`<button class="tag ${i===0?'active':''}">${t}</button>`).join('')}</span></div>`).join('')}</div></div><div class="panel"><div class="panel-head"><div><h3>待打标签知识</h3><small>可选择单条或多条知识批量应用标签</small></div><span class="status info">已选 ${state.selectedKnowledge.size} 条</span></div>${knowledgeMemberTable()}<div class="batch-footer"><span class="notice">当前将应用：责任中心 / 业务域 / 对象 / 主题 / 适用区域</span><span class="spacer"></span><button class="btn primary" data-action="save-tags">应用到所选知识</button></div></div></div>`}
 function intake(){const d=domain();const tabs=[['integration','知识集成','系统集成与离线上传'],['set','知识集构建','自动规则与手动添加'],['tagging','知识打标签','场景标签与批量操作']];return `${context()}${pageHead('STAGE 01 · 领域知识管理员','知识接入',`在“${d.name}”领域完成知识集成、知识集构建与场景化打标。`,'<button class="btn">接入日志</button>')}<div class="intake-tabs">${tabs.map((x,i)=>`<button class="intake-tab ${state.intakeTab===x[0]?'active':''}" data-intake-tab="${x[0]}"><span>${i+1}</span><b>${x[1]}</b><small>${x[2]}</small></button>`).join('')}</div>${state.intakeTab==='integration'?`<div class="integration-switch"><button class="${state.integrationMode==='system'?'active':''}" data-integration-mode="system">系统集成 <small>8 条管道</small></button><button class="${state.integrationMode==='offline'?'active':''}" data-integration-mode="offline">离线上传 <small>多格式文档</small></button></div>${integrationPanel()}`:state.intakeTab==='set'?setBuildPanel():taggingPanel()}<div class="action-bar"><span class="notice">知识集每日 00:00 自动执行规则添加与质量检查，所有变更均记录操作日志。</span><span class="spacer"></span><button class="btn primary" data-action="finish-intake">完成知识接入并进入解析 →</button></div>`}
 
-function renderPage(){const map={overview,intake,parse,extract:extractV2,review:reviewV2,approval,service,operations};$('#page').innerHTML=(map[state.route]||overview)();if(state.route==='intake'&&state.intakeTab==='set'){const p=document.querySelectorAll('.rule-card p');if(p[0])p[0].textContent='已配置 2 个管道：知识圈（圈子名称、发布时间）· 3MS（责任部门、文档类型、专业领域、发布时间）';if(p[1])p[1].textContent='规则 + AI：全文字数 > 500；5 个标签维度至少命中 3 个枚举维度'}}
+function renderPage(){const map={overview:overviewV2,intake:intakeV2,parse,extract:extractV2,review:reviewPage,approval:approvalV2,certification,storage:serviceV2,service:serviceV2,operations};$('#page').innerHTML=(map[state.route]||overviewV2)();if(state.route==='intake'&&state.intakeTab==='set'){const p=document.querySelectorAll('.rule-card p');if(p[0])p[0].textContent='已配置 2 个管道：知识圈（圈子名称、发布时间）· 3MS（责任部门、文档类型、专业领域、发布时间）';if(p[1])p[1].textContent='规则 + AI：全文字数 > 500；5 个标签维度至少命中 3 个枚举维度'}}
 function render(){renderShell();renderPage();bindDynamic()}
 function bindDynamic(){
   document.querySelectorAll('[data-route]').forEach(x=>x.onclick=()=>go(x.dataset.route));
   document.querySelectorAll('[data-intake-tab]').forEach(x=>x.onclick=()=>{state.intakeTab=x.dataset.intakeTab;render()});
   document.querySelectorAll('[data-integration-mode]').forEach(x=>x.onclick=()=>{state.integrationMode=x.dataset.integrationMode;render()});
-  document.querySelectorAll('[data-domain]').forEach(x=>x.onclick=()=>{state.domain=x.dataset.domain;syncDomainSamples();state.completed=[];state.approved=false;state.certified=false;state.built=false;state.published=false;go('intake')});
+  document.querySelectorAll('[data-domain]').forEach(x=>x.onclick=()=>{state.domain=x.dataset.domain;$('#domain-switcher')?.classList.remove('open');syncDomainSamples();state.completed=[];state.approved=false;state.certified=false;state.built=false;state.published=false;go('intake')});
   document.querySelectorAll('[data-mode]').forEach(x=>x.onclick=()=>{state.serviceMode=x.dataset.mode;state.built=false;state.published=false;render()});
   document.querySelectorAll('[data-model]').forEach(x=>x.onclick=()=>{state.selectedModel=x.dataset.model;render()});
   document.querySelectorAll('[data-review-model]').forEach(x=>x.onclick=()=>{state.reviewModel=x.dataset.reviewModel;state.reviewRecord=(reviewResults[state.reviewModel]||[])[0]?.id;render()});
@@ -229,12 +240,29 @@ function handleAction(a,el){
   if(a==='confirm-record'){if(state.route==='review'){const item=(reviewResults[state.reviewModel]||[]).find(x=>x.id===state.reviewRecord);if(item)item.status='已确认'}else{const item=records.find(x=>x.id===state.selectedRecord);if(item)item.status='已确认'}toast('知识已确认');return render()}
   if(a==='submit-approval'){markDone('review');toast('已提交领域知识责任人');return go('approval')}
   if(a==='reject-owner')return toast('知识包已退回专家修订');
-  if(a==='approve-owner'){state.approved=true;toast('审批通过，已流转专委会');return render()}
-  if(a==='domain-only'){state.certified=true;markDone('approval');toast('已定性为领域级知识');return render()}
-  if(a==='certify'){state.certified=true;markDone('approval');toast('已认证为组织级知识');return render()}
+  if(a==='approve-owner'){state.approved=true;markDone('approval');toast('审批通过，已流转专委会认证');return go('certification')}
+  if(a==='domain-only'){state.certified=true;markDone('certification');toast('已定性为领域级知识');return render()}
+  if(a==='certify'){state.certified=true;markDone('certification');toast('已认证为组织级知识');return render()}
   if(a==='publish-service'){state.built=true;state.published=true;markDone('service');toast(`${serviceTypes[state.serviceMode].name}已构建并发布`);return render()}
   if(a==='test-service')return toast('检索测试完成：命中 1 条可信知识');
   if(a==='copy-endpoint')return toast('调用地址已复制');
+}
+function intakeV2(){return intake().replace(' <small>8 条管道</small>','').replace(' <small>多格式文档</small>','')}
+function reviewPage(){return reviewV2().replace('专家确认抽取结果','知识审核').replace('按知识结构呈现独立确认表单；切换知识结构后，可筛选、核对并修订该结构下的抽取结果。','领域知识专家按知识结构审核抽取结果，逐项核对证据、修订字段并确认知识。')}
+function serviceV2(){let html=service().replace('STAGE 06 · 领域知识管理员 / IT','STAGE 07 · 领域知识管理员 / IT');if(state.route==='storage')html=html.replace('正式入库与知识服务构建','知识入库').replace('审批后的知识在此生成正式版本，并按消费需求构建语义、精确或混合检索服务。','将已认证知识生成正式版本并写入知识底座，保留来源证据、审批记录与版本关系。');else html=html.replace('正式入库与知识服务构建','检索服务构建').replace('审批后的知识在此生成正式版本，并按消费需求构建语义、精确或混合检索服务。','基于正式知识版本构建语义检索、精确检索或混合检索服务。');return html}
+function governanceRoleBanner(step,title,role,desc,status){return `<div class="governance-role-banner"><span class="governance-step">${step}</span><span><small>当前作业角色</small><b>${role}</b></span><i></i><span class="governance-duty"><b>${title}</b><small>${desc}</small></span>${badge(status)}</div>`}
+function approvalV2(){
+  const items=(reviewResults.warning||[]).map(x=>[x.values['知识标题'],x.values['预警指标'],x.confidence,x.status]);
+  return `${context()}${pageHead('STAGE 05 · 领域知识责任人','知识审批','领域知识责任人独立审批知识的准确性、适用范围与业务可用性；审批通过后再流转领域专委会认证。','<button class="btn">查看审核记录</button>')}${governanceRoleBanner('05','知识审批','领域知识责任人','判断知识是否准确、适用且可以进入正式知识库',state.approved?'已审批':'待审批')}<div class="governance-grid"><section class="panel"><div class="panel-head"><div><h3>审批检查项</h3><small>经营领域知识包 V1.0 · 9 条知识</small></div><span class="status info">责任人审批</span></div><div class="panel-body approval-checks">${[['内容准确性','字段、规则与业务事实一致','已通过'],['适用范围','责任中心、业务域与区域边界明确','已通过'],['业务可用性','可直接支持分析、预警与决策','已通过'],['风险与时效','无敏感风险，知识仍在有效期内','待确认']].map((x,i)=>`<label class="approval-check"><input type="checkbox" ${i<3?'checked':''}><span><b>${x[0]}</b><small>${x[1]}</small></span><em class="${i<3?'done':''}">${x[2]}</em></label>`).join('')}</div></section><section class="panel"><div class="panel-head"><div><h3>知识包摘要</h3><small>来源、审核与字段完整度</small></div>${badge('专家审核通过')}</div><div class="panel-body"><div class="governance-metrics"><span><small>知识条目</small><b>9</b></span><span><small>平均置信度</small><b>91%</b></span><span><small>字段完整率</small><b>100%</b></span></div><div class="approval-source"><b>专家审核结论</b><p>抽取字段与原文证据一致，场景标签已核对；其中 2 条由专家修订并留痕。</p><small>领域知识专家 · 李明 · 今天 14:32</small></div></div></section></div><section class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>待审批知识</h3><small>审批结果将应用于整个知识包</small></div><span class="status warn">${items.length} 条抽样展示</span></div><table class="data-table"><thead><tr><th>知识名称</th><th>核心对象</th><th>专家置信度</th><th>审核状态</th><th>证据</th></tr></thead><tbody>${items.map(x=>`<tr><td><b>${x[0]}</b></td><td>${x[1]}</td><td>${x[2]}%</td><td>${badge('审核通过')}</td><td><button class="btn small" data-action="preview-evidence">查看</button></td></tr>`).join('')}</tbody></table></section><div class="action-bar"><button class="btn danger" data-action="reject-owner">退回知识专家</button><span class="spacer"></span><button class="btn success" data-action="approve-owner">审批通过并提交认证 →</button></div>`;
+}
+function certification(){
+  return `${context()}${pageHead('STAGE 06 · 领域专委会责任人','知识认证','领域专委会对已审批知识进行最终定性，决定其是否具备跨团队复用价值并成为组织级知识。','<button class="btn">认证规则</button>')}${governanceRoleBanner('06','知识认证','领域专委会责任人','最终定性知识是否能够成为组织级知识',state.certified?'组织级知识':'待认证')}<div class="certification-hero"><div><span>ORGANIZATION KNOWLEDGE CERTIFICATION</span><h2>${domain().name} · ${domain().scene}知识包 V1.0</h2><p>责任人审批已通过，现提交专委会进行组织价值、复用范围和治理风险评估。</p></div><div class="certification-seal ${state.certified?'done':''}"><span>${state.certified?'✓':'委'}</span><b>${state.certified?'已认证':'待定性'}</b></div></div><div class="certification-grid">${[['组织价值','能够沉淀跨团队通用的经营判断与处置方法','高'],['复用范围','适用于区域经营、渠道管理与经营分析团队','广'],['证据可信','全部知识可回溯至原文页码和审核记录','100%'],['治理风险','无敏感信息，适用边界与失效条件明确','低']].map((x,i)=>`<section><span class="cert-icon">${['◆','⌘','◎','◇'][i]}</span><small>${x[0]}</small><b>${x[2]}</b><p>${x[1]}</p></section>`).join('')}</div><div class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>认证意见</h3><small>专委会定性结论将写入知识版本和审计记录</small></div>${badge(state.certified?'已认证':'待专委会处理')}</div><div class="panel-body"><div class="form-field"><label>专委会意见</label><textarea>${state.certified?'该知识包具备明确的组织复用价值，认证为组织级知识并进入知识底座。':'知识内容准确、来源可信，适用边界清晰，建议认证为组织级知识。'}</textarea></div><div class="certification-options"><label><input type="radio" name="cert" checked> 认证为组织级知识</label><label><input type="radio" name="cert"> 保留为领域级知识</label><label><input type="radio" name="cert"> 退回重新审批</label></div></div></div><div class="action-bar"><button class="btn" data-action="domain-only">仅保留为领域级知识</button><span class="spacer"></span>${state.certified?'<button class="btn primary" data-route="storage">进入知识入库 →</button>':'<button class="btn primary" data-action="certify">认证为组织级知识</button>'}</div>`;
+}
+function overviewV2(){
+  const totalOrg=domains.reduce((sum,x)=>sum+x.org,0),totalTeam=domains.reduce((sum,x)=>sum+x.team,0),totalServices=domains.reduce((sum,x)=>sum+x.services,0);
+  return `<section class="home-hero"><div class="hero-copy"><span class="hero-kicker"><i></i> ENTERPRISE KNOWLEDGE FOUNDATION</span><h1>让企业知识成为<br><em>可持续演进的生产力</em></h1><p>面向经营、账务、资金等核心领域，统一完成知识接入、智能加工、审核认证与服务化，让每一条知识可信、可溯源、可消费。</p><div class="hero-actions"><button class="hero-btn primary" data-route="intake">进入知识工程 <span>→</span></button><button class="hero-btn" data-route="operations">查看知识运营</button></div><div class="hero-metrics"><span><b>${totalOrg.toLocaleString()}</b><small>组织知识资产</small></span><span><b>${totalTeam.toLocaleString()}</b><small>团队知识资产</small></span><span><b>${totalServices}</b><small>知识服务</small></span><span><b>8</b><small>核心知识领域</small></span></div></div><div class="hero-visual"><div class="knowledge-orbit orbit-one"><span>可信</span></div><div class="knowledge-orbit orbit-two"><span>可用</span></div><div class="knowledge-core"><i>知</i><b>知识底座</b><small>Knowledge Foundation</small></div><div class="orbit-chip chip-a">向量语义</div><div class="orbit-chip chip-b">知识图谱</div><div class="orbit-chip chip-c">组织治理</div><div class="orbit-chip chip-d">智能服务</div></div></section>
+  <section class="home-section"><div class="home-section-head"><div><span>DOMAIN KNOWLEDGE</span><h2>领域知识资产</h2><p>选择业务领域，进入对应的知识工程工作空间</p></div><button class="section-link" data-route="operations">查看全域运营数据 <span>↗</span></button></div><div class="domain-grid premium-domain-grid">${domains.map((d,i)=>`<button class="domain-card premium-domain-card ${d.id===state.domain?'selected':''}" data-domain="${d.id}" style="--domain:${d.color};--index:${i}"><div class="domain-card-head"><span class="domain-badge">${d.icon}</span><span class="domain-arrow">↗</span></div><h3>${d.name}</h3><p>${d.desc}</p><div class="domain-numbers"><span><b>${d.org}</b><small>组织知识资产</small></span><span><b>${d.team}</b><small>团队知识资产</small></span><span><b>${d.services}</b><small>知识服务</small></span></div><footer><span class="domain-line"><i style="width:${d.progress}%"></i></span><b>进入领域</b></footer></button>`).join('')}</div></section>
+  <section class="journey-command"><div class="journey-command-head"><div><span>KNOWLEDGE ENGINEERING</span><h2>知识底座旅程</h2><p>从企业原始知识到可检索、可复用、可演进的知识服务</p></div><div class="journey-legend"><span><i></i>业务与 IT 协同</span><span><i></i>专家与责任人把关</span><span><i></i>系统自动化执行</span></div></div><div class="journey-group-grid">${homeJourneyGroups.map((g,i)=>`<article class="journey-group" data-route="${g.route}"><div class="journey-group-top"><span class="journey-no">${g.no}</span><span class="journey-icon">${g.icon}</span></div><h3>${g.name}</h3><p>${g.desc}</p><div class="journey-items">${g.items.map((x,j)=>`<div><span>${String(j+1).padStart(2,'0')}</span><b>${x[0]}</b><small>${x[1]}</small></div>`).join('')}</div><footer><span>进入${g.name}</span><b>→</b></footer></article>${i<homeJourneyGroups.length-1?'<i class="journey-connector">→</i>':''}`).join('')}</div><div class="journey-value-strip"><span><small>01</small><b>精确检索</b></span><span><small>02</small><b>语义检索</b></span><span><small>03</small><b>知识可溯源</b></span><span><small>04</small><b>知识自演进</b></span><p>统一知识底座，持续释放组织认知价值</p></div></section>`;
 }
 function reviewFilterControl(field,idx){
   const [name,type,source]=field;
@@ -262,7 +290,8 @@ function applyReviewFilters(){
   document.querySelector('.review-empty')?.classList.toggle('show',shown===0);const count=document.querySelector('#review-filter-count');if(count)count.textContent=`当前显示 ${shown} / ${document.querySelectorAll('[data-review-values]').length} 条`;
 }
 $('#role-switcher').onclick=e=>{if(e.target.closest('.role-option'))return;$('#role-switcher').classList.toggle('open')};
+$('#domain-switcher').onclick=e=>{if(e.target.closest('.domain-option'))return;$('#domain-switcher').classList.toggle('open')};
 document.addEventListener('click',e=>{const r=e.target.closest('[data-role]');if(r){state.role=r.dataset.role;$('#role-switcher').classList.remove('open');toast(`已切换为${roles.find(x=>x.id===state.role).name}视角`);render()}});
-window.addEventListener('hashchange',()=>{state.route=location.hash.slice(1)||'overview';render()});
+window.addEventListener('hashchange',()=>{state.route=location.hash.slice(1)||'overview';const routeRole={review:'expert',approval:'owner',certification:'committee'};if(routeRole[state.route])state.role=routeRole[state.route];render()});
 syncDomainSamples();
 render();
