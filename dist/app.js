@@ -27,7 +27,7 @@ const roles = [
   {id:'owner',name:'领域知识责任人',short:'责',desc:'审批知识是否准确、适用且可进入正式知识库'},
   {id:'committee',name:'领域专委会责任人',short:'委',desc:'最终定性：决定知识是否成为组织级知识'}
 ];
-const navItems=[{id:'overview',label:'首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'storage',label:'知识入库',icon:'▤'},{id:'operations',label:'运营看板',icon:'▦'}];
+const navItems=[{id:'overview',label:'知识底座首页',icon:'⌂'},...stages.map(x=>({...x})),{id:'storage',label:'知识入库',icon:'▤'},{id:'operations',label:'运营看板',icon:'▦'}];
 const homeJourneyGroups=[
   {no:'01',name:'知识接入',icon:'↗',desc:'连接企业知识源，形成高质量领域知识集',route:'intake',items:[['知识集成','系统管道 / 离线上传'],['知识集构建','自动规则 / 质量过滤'],['知识打标签','场景标签 / 批量操作']]},
   {no:'02',name:'知识加工',icon:'◇',desc:'把多模态资料转化为结构化领域知识',route:'parse',items:[['多模态解析','文本 / 表格 / 图像'],['知识结构','模型表 / 字段定义'],['知识抽取','任务编排 / 自动抽取']]},
@@ -130,14 +130,16 @@ function context(){return ''}
 function renderShell(){
   const navButton=(id,label,icon,sub=false,badgeText='')=>`<button class="nav-item ${sub?'nav-subitem':''} ${state.route===id?'active':''}" data-route="${id}"><span class="nav-icon">${icon}</span><span class="nav-label">${label}</span>${badgeText?`<span class="nav-badge">${badgeText}</span>`:''}</button>`;
   const navCluster=(label,icon,routes,items)=>`<div class="nav-cluster ${routes.includes(state.route)?'open':''}"><div class="nav-parent"><span class="nav-icon">${icon}</span><span>${label}</span><i>⌄</i></div><div class="nav-children">${items.join('')}</div></div>`;
-  $('#main-nav').innerHTML=`<div class="nav-group-label">首页</div>${navButton('overview','领域与知识底座旅程','⌂')}<div class="nav-group-label">知识工程</div>${navButton('intake','知识接入','↗')}${navCluster('知识加工','◇',['parse','extract'],[navButton('parse','多模态解析','◫',true),navButton('extract','知识抽取','◇',true)])}${navCluster('知识审核与认证','◎',['review','approval','certification'],[navButton('review','知识审核','✓',true,'12'),navButton('approval','知识审批','◉',true),navButton('certification','知识认证','◎',true)])}${navCluster('知识服务','⌁',['storage','service'],[navButton('storage','知识入库','▤',true),navButton('service','检索服务构建','⌁',true)])}<div class="nav-group-label nav-ops-label">知识运营</div>${navButton('operations','运营看板','▦')}`;
+  $('#main-nav').innerHTML=`<div class="nav-group-label">首页</div>${navButton('overview','知识底座首页','⌂')}<div class="nav-group-label">知识工程</div>${navButton('intake','知识接入','↗')}${navCluster('知识加工','◇',['parse','extract'],[navButton('parse','多模态解析','◫',true),navButton('extract','知识抽取','◇',true)])}${navCluster('知识审核与认证','◎',['review','approval','certification'],[navButton('review','知识审核','✓',true,'12'),navButton('approval','知识审批','◉',true),navButton('certification','知识认证','◎',true)])}${navCluster('知识服务','⌁',['storage','service'],[navButton('storage','知识入库','▤',true),navButton('service','检索服务构建','⌁',true)])}<div class="nav-group-label nav-ops-label">知识运营</div>${navButton('operations','运营看板','▦')}`;
   $('#stage-strip').style.display=['overview','operations'].includes(state.route)?'none':'flex';
   $('#stage-strip').innerHTML=stages.map((s,i)=>`<button class="stage-chip ${(state.route===s.id||(state.route==='storage'&&s.id==='service'))?'active':''} ${state.completed.includes(s.id)?'done':''}" data-route="${s.id}"><span class="num">${state.completed.includes(s.id)?'✓':i+1}</span><span>${s.label}</span></button>`).join('');
   const role=roles.find(r=>r.id===state.role);$('#role-name').textContent=role.name;$('#role-avatar').textContent=role.short;
   $('#role-menu').innerHTML=roles.map(r=>`<div class="role-option" data-role="${r.id}"><span class="avatar">${r.short}</span><span><b>${r.name}</b><p>${r.desc}</p></span></div>`).join('');
   const currentDomain=domain();$('#top-domain-name').textContent=currentDomain.name;$('#top-domain-badge').textContent=currentDomain.icon;$('#top-domain-badge').style.background=currentDomain.color;
   $('#domain-menu').innerHTML=domains.map(d=>`<button class="domain-option ${d.id===state.domain?'active':''}" data-domain="${d.id}"><span style="--domain:${d.color}">${d.icon}</span><b>${d.name}</b><small>${d.services} 个知识服务</small></button>`).join('');
-  $('#page-crumb').textContent=navItems.find(x=>x.id===state.route)?.label||'首页';
+  const pageSection=state.route==='overview'?'首页':state.route==='operations'?'知识运营':'知识工程';
+  $('#page-section').textContent=pageSection;
+  $('#page-crumb').textContent=navItems.find(x=>x.id===state.route)?.label||'知识底座首页';
 }
 function overview(){return `${pageHead('KNOWLEDGE FOUNDATION','首页','从领域入口进入独立知识旅程；每个领域拥有自己的知识资产、知识服务与治理进度。','<button class="btn" data-route="operations">查看运营数据</button>')}
   <section class="domain-grid">${domains.map(d=>`<button class="domain-card ${d.id===state.domain?'selected':''}" data-domain="${d.id}" style="--domain:${d.color}"><div class="domain-card-head"><span class="domain-badge">${d.icon}</span></div><h3>${d.name}</h3><p>${d.desc}</p><div class="domain-numbers"><span><b>${d.org}</b><small>组织知识资产</small></span><span><b>${d.team}</b><small>团队知识资产</small></span><span><b>${d.services}</b><small>知识服务</small></span></div><div class="domain-progress"><i style="width:${d.progress}%"></i></div><footer><b>进入管理流程 →</b></footer></button>`).join('')}</section>

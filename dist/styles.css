@@ -79,7 +79,7 @@ main { min-width: 0; }.topbar { height: 72px; padding: 0 30px; display:flex; ali
   .architecture-summary,.panorama{grid-template-columns:1fr}.definition-grid{grid-template-columns:repeat(2,1fr)}.graph-stage{height:280px}
 }
 @media (max-width: 620px){
-  .grid.cols-4,.grid.cols-3,.form-grid{grid-template-columns:1fr}.source-cards{grid-template-columns:1fr}.page-head{display:block}.head-actions{margin-top:12px;justify-content:flex-start}.search-hero{display:block}.big-search{width:100%;margin-top:16px}.breadcrumb span,.breadcrumb b{display:none}
+  .grid.cols-4,.grid.cols-3,.form-grid{grid-template-columns:1fr}.source-cards{grid-template-columns:1fr}.page-head{display:block}.head-actions{margin-top:12px;justify-content:flex-start}.search-hero{display:block}.big-search{width:100%;margin-top:16px}.breadcrumb{font-size:9px;gap:5px;white-space:nowrap}
   .process-strip,.definition-grid,.knowledge-outline{grid-template-columns:1fr}.graph-stage{height:360px}.gnode.n1{left:21%}.gnode.n3{left:79%}.gnode.n4{left:80%}.gnode.n6{left:20%}
 }
 /* v2 multi-domain information architecture */
