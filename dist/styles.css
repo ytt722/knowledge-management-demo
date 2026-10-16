@@ -259,3 +259,10 @@ main{background:var(--canvas)}.topbar{height:52px;padding:0 27px;background:#fff
 @media(max-width:900px){.global-header .brand{min-width:144px}.global-actions{gap:9px}.app-shell{grid-template-columns:66px 1fr}.sidebar{padding-right:6px}.sidebar .nav-group-label,.sidebar .nav-label,.sidebar .nav-parent>span:not(.nav-icon),.sidebar .nav-parent i,.sidebar .nav-badge{display:none}.nav-item,.nav-parent{justify-content:center;padding:0}.nav-subitem{padding:0}.sidebar-collapse{display:none}.topbar{padding:0 16px}.page{padding:16px}.global-domain{display:grid}}
 @media(max-width:1000px){.quality-summary{grid-template-columns:repeat(2,1fr)}.quality-rule-grid{grid-template-columns:1fr}.selection-rule-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.quality-summary{grid-template-columns:1fr 1fr}.quality-summary section{padding:12px}.quality-summary b{font-size:18px}}
+
+/* v49 header alignment refinements */
+.global-header .brand{background:transparent;align-items:center;padding-top:0;padding-bottom:0}
+.global-header .brand-mark{height:31px;flex:0 0 31px;align-self:center}
+.global-header .brand>span:last-child{display:flex;align-items:center;height:31px}
+.global-header .brand b{display:block;line-height:31px;margin:0}
+.global-header .global-domain{display:none}
