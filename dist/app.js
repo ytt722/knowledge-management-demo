@@ -121,6 +121,7 @@ state.graphExpanded=new Set(['1:区域TOB','2:区域TOB/政企','3:区域TOB/政
 state.graphScope={level:4,parts:['区域TOB','政企','渠道','伙伴激励']};
 state.selectedGraphTopic='伙伴激励';
 state.selectedGraphMetric='激励发放金额/业绩金额';
+state.selectedGraphNode=null;
 state.role=({review:'expert',approval:'owner',certification:'committee'})[state.route]||state.role;
 docSets.forEach(s=>state.fields[s.id]=[...s.fields]);
 const $=s=>document.querySelector(s);
@@ -246,9 +247,9 @@ function bindDynamic(){
   document.querySelectorAll('.task-model-check').forEach(x=>x.onchange=()=>{x.checked?state.taskModels.add(x.dataset.id):state.taskModels.delete(x.dataset.id);render()});
   document.querySelectorAll('.knowledge-base-check').forEach(x=>x.onchange=()=>{x.checked?state.selectedBases.add(x.dataset.id):state.selectedBases.delete(x.dataset.id);render()});
   document.querySelectorAll('[data-kg-toggle]').forEach(x=>x.onclick=()=>{const key=x.dataset.kgToggle;state.graphExpanded.has(key)?state.graphExpanded.delete(key):state.graphExpanded.add(key);render()});
-  document.querySelectorAll('[data-kg-scope-level]').forEach(x=>{const select=()=>{let parts=[];try{parts=JSON.parse(x.dataset.kgScopeParts)}catch(e){return}state.graphScope={level:+x.dataset.kgScopeLevel,parts};state.selectedGraphTopic=parts[3]||'';state.selectedGraphMetric='';render()};x.onclick=select;if(x.tagName!=='BUTTON')x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}}});
+  document.querySelectorAll('[data-kg-scope-level]').forEach(x=>{const select=()=>{let parts=[];try{parts=JSON.parse(x.dataset.kgScopeParts)}catch(e){return}state.graphScope={level:+x.dataset.kgScopeLevel,parts};state.selectedGraphTopic=parts[3]||'';state.selectedGraphMetric='';state.selectedGraphNode=null;render()};x.onclick=select;if(x.tagName!=='BUTTON')x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}}});
   document.querySelectorAll('[data-kg-topic]').forEach(x=>x.onclick=()=>{state.selectedGraphTopic=x.dataset.kgTopic;state.selectedGraphMetric=kgMetrics(state.selectedGraphTopic)[0]||'';render()});
-  document.querySelectorAll('[data-metric-node]').forEach(x=>{const select=()=>{state.selectedGraphMetric=x.dataset.metricNode;render()};x.onclick=select;x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}}});
+  document.querySelectorAll('[data-metric-node]').forEach(x=>{const select=()=>{state.selectedGraphMetric=x.dataset.metricNode;state.selectedGraphNode={label:x.dataset.metricNode,kind:'metric',metricName:x.dataset.metricNode,nodeType:'指标'};render()};x.onclick=select;x.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}}});
   requestAnimationFrame(()=>window.initKnowledgeGraph?.());
   document.querySelectorAll('[data-action]').forEach(x=>x.onclick=e=>handleAction(x.dataset.action,x,e));
 }
