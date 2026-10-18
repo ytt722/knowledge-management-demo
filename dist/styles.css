@@ -548,3 +548,43 @@ main small{font-size:10px!important;line-height:1.45}
   padding:16px 20px;
   align-items:center;
 }
+
+/* v83 · wider automatic-filter rule dialog */
+.modal:has(#pipeline-rule-list){
+  width:min(860px,calc(100vw - 32px));
+  max-width:860px;
+}
+.modal:has(#pipeline-rule-list) .modal-head{
+  padding:18px 22px;
+  background:linear-gradient(180deg,#fff,#f8faff);
+}
+.modal:has(#pipeline-rule-list) .modal-body{padding:20px 22px}
+.modal:has(#pipeline-rule-list) .modal-foot{padding:14px 22px}
+.modal:has(#pipeline-rule-list) .rule-config-toolbar{
+  grid-template-columns:minmax(260px,1fr) auto;
+  gap:12px;
+  margin:16px 0;
+}
+.modal:has(#pipeline-rule-list) .pipeline-rule-list{gap:12px}
+.modal:has(#pipeline-rule-list) .pipeline-rule-block{
+  padding:14px 16px;
+  border-color:#dfe6f0;
+  border-left-color:var(--blue);
+  border-radius:8px;
+  background:linear-gradient(180deg,#fbfcff,#fff);
+  box-shadow:0 6px 18px rgba(26,48,82,.04);
+}
+.modal:has(#pipeline-rule-list) .pipeline-rule-head{margin-bottom:12px}
+.modal:has(#pipeline-rule-list) .pipeline-rule-head b{font-size:12px}
+.modal:has(#pipeline-rule-list) .pipeline-rule-head small,
+.modal:has(#pipeline-rule-list) .pipeline-rule-fields label{font-size:10px}
+.modal:has(#pipeline-rule-list) .pipeline-rule-fields{gap:10px}
+.modal:has(#pipeline-rule-list) .pipeline-rule-fields select{min-height:38px;font-size:10px}
+@media(max-width:900px){
+  .modal:has(#pipeline-rule-list){width:min(680px,calc(100vw - 20px));max-width:680px}
+  .modal:has(#pipeline-rule-list) .pipeline-rule-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .modal:has(#pipeline-rule-list) .rule-config-toolbar,
+  .modal:has(#pipeline-rule-list) .pipeline-rule-fields{grid-template-columns:1fr}
+}
