@@ -588,3 +588,39 @@ main small{font-size:10px!important;line-height:1.45}
   .modal:has(#pipeline-rule-list) .rule-config-toolbar,
   .modal:has(#pipeline-rule-list) .pipeline-rule-fields{grid-template-columns:1fr}
 }
+
+/* v84 · cross-page typography and component consistency audit */
+.file-icon.compact{font-size:10px}
+.quality-summary span{font-size:10px;line-height:1.4}
+.storage-guide>span{font-size:10px;font-weight:700}
+.audit-table{font-size:10px}
+.audit-table th{padding:9px 11px;font-size:10px;line-height:1.35}
+.audit-table td{padding:9px 11px;font-size:10px;line-height:1.45}
+.audit-table code{font-size:9px}
+.review-list-panel .review-compact-table{font-size:11px}
+.review-list-panel .review-compact-table td{font-size:11px}
+.review-list-panel .review-compact-table th{font-size:10px}
+.review-list-panel .source-link{font-size:10px}
+.review-list-panel .audit-table-wrap{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+.kg-legend i.metric{width:9px;height:9px;padding:0!important;box-sizing:border-box}
+.retrieval-base-head span,
+.retrieval-base-head p,
+.retrieval-base-head>em,
+.retrieval-base-grid b,
+.retrieval-base-grid em,
+.retrieval-base-selector>footer,
+.retrieval-base-selector>footer b,
+.retrieval-base-selector>footer span{font-size:10px}
+.retrieval-base-head p,
+.retrieval-base-selector>footer{line-height:1.5}
+.pipeline-node>span{font-size:10px}
+.kg-summary>div span,
+.kg-level,
+.kg-node-drawer-head span,
+.kg-detail-head>span,
+.kg-rel-count,
+.kg-related-list span{font-size:10px}
+@media(max-width:640px){
+  .audit-table th,.audit-table td{padding:9px 10px}
+  .review-list-panel .review-compact-table td{font-size:10px}
+}
