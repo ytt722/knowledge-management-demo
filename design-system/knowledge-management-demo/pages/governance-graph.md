@@ -18,7 +18,7 @@ This page follows the project Master design system with these graph-specific rul
 - Use a restrained Neo4j-inspired visual language: circular directory, theme, and metric nodes with concentric halos, thin relationship lines, and compact labels inside each node.
 - Render L1/L2/L3 scopes with G6's force-directed layout so the complete hierarchy can settle into readable clusters; theme views use a concentric layout.
 - The graph stage supports pan, wheel/pinch zoom, node dragging, fit-to-view controls, animated layout entry, and direct node selection.
-- Selected state uses a blue halo, stronger node fill, and high-contrast white labels; related and cross-theme metrics use amber accents.
+- Selected state uses a blue halo and stronger emphasis. All metric nodes share one visual style, including cross-theme metrics; relationship edges communicate their linkage.
 - Node type, relationship direction and selection must be communicated with labels, shapes and line styles, not color alone.
 - Every graph must include a keyboard-accessible relationship list/table as the semantic fallback.
 - Clicking any graph node opens a details drawer from the graph stage's right edge without changing the directory scope or pushing content below the graph.
