@@ -522,3 +522,29 @@ main small{font-size:10px!important;line-height:1.45}
   .modal:has(.quality-mode-grid),.modal:has(.quality-mode-grid.three-mode){width:min(680px,calc(100vw - 20px));max-width:680px}
   .quality-mode-grid,.quality-mode-grid.three-mode{grid-template-columns:1fr}
 }
+
+/* v79 · align integration source headings */
+.integration-summary-copy .section-kicker,
+.offline-unified-panel .section-kicker{
+  display:block;
+  margin:0 0 3px;
+  color:#58708e;
+  font-size:10px!important;
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:.9px;
+}
+.integration-summary-copy h3,
+.offline-unified-panel .panel-head h3{
+  margin:0;
+  color:#172033;
+  font-size:16px;
+  font-weight:700;
+  line-height:1.35;
+  letter-spacing:-.1px;
+}
+.offline-unified-panel .panel-head{
+  min-height:84px;
+  padding:16px 20px;
+  align-items:center;
+}
