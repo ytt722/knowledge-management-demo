@@ -11,7 +11,8 @@ This page follows the project Master design system with these graph-specific rul
 - Use SVG for the network because each topic contains fewer than 100 nodes.
 - Theme-to-metric edges use quiet blue-gray strokes; metric-to-metric relationships use amber dashed directional edges.
 - Use a restrained Neo4j-inspired visual language: circular directory, theme, and metric nodes with concentric halos, thin relationship lines, and compact labels inside each node.
-- L1/L2 and theme views use deterministic radial layouts. Object views use a deterministic force-directed layout so shared metrics can connect naturally across theme clusters.
+- Render the interactive graph with the open-source Cytoscape.js component. L1/L2 and theme views use concentric layouts; object views use Cytoscape's CoSE force-directed layout so shared metrics connect naturally across theme clusters.
+- The graph stage supports pan, wheel/pinch zoom, node dragging, fit-to-view controls, animated layout entry, and direct node selection.
 - Selected state uses a blue halo, stronger node fill, and high-contrast white labels; related and cross-theme metrics use amber accents.
 - Node type, relationship direction and selection must be communicated with labels, shapes and line styles, not color alone.
 - Every graph must include a keyboard-accessible relationship list/table as the semantic fallback.
