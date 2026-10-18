@@ -1,0 +1,9 @@
+{
+  "name": "knowledge-management-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "知识底座领域知识管理交互演示",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
