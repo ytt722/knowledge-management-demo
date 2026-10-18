@@ -481,3 +481,44 @@ main small{font-size:10px!important;line-height:1.45}
 
 /* v63 — all graph outlines and relationships use solid strokes */
 .kg-edge,.directory-edge,.theme-edge,.metric-edge,.kg-node.external .kg-node-shell,.kg-node.external rect{stroke-dasharray:none!important;animation:none!important}
+
+/* v76 · align the directory and graph panels */
+@media(min-width:821px){
+  .kg-workbench{align-items:stretch}
+  .kg-directory{position:static;max-height:none}
+  .kg-directory-body{flex:1;min-height:0}
+}
+
+/* v77 · unified quality-rule configuration dialog */
+.modal:has(.quality-mode-grid){
+  width:min(960px,calc(100vw - 32px));
+  max-width:960px;
+}
+.modal:has(.quality-mode-grid.three-mode){
+  width:min(1120px,calc(100vw - 32px));
+  max-width:1120px;
+}
+.modal:has(.quality-mode-grid) .modal-head{
+  padding:18px 22px;
+  background:linear-gradient(180deg,#fff,#f8faff);
+}
+.modal:has(.quality-mode-grid) .modal-body{padding:20px 22px}
+.modal:has(.quality-mode-grid) .modal-foot{padding:14px 22px}
+.quality-mode-grid>section{
+  display:flex;
+  min-width:0;
+  flex-direction:column;
+  border-color:#dfe6f0;
+  background:linear-gradient(180deg,#fbfcff,#fff);
+  box-shadow:0 6px 18px rgba(26,48,82,.045);
+}
+.quality-mode-head{min-height:42px;padding-bottom:10px;border-bottom:1px solid #e8edf4}
+.quality-mode-head b{font-size:12px}
+.quality-mode-head small{font-size:10px;line-height:1.45}
+.quality-rule-item b,.ai-check-list label{font-size:10px}
+.quality-rule-item small{font-size:10px}
+.quality-mode-grid>section>.btn{margin-top:auto;align-self:flex-start}
+@media(max-width:900px){
+  .modal:has(.quality-mode-grid),.modal:has(.quality-mode-grid.three-mode){width:min(680px,calc(100vw - 20px));max-width:680px}
+  .quality-mode-grid,.quality-mode-grid.three-mode{grid-template-columns:1fr}
+}
