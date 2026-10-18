@@ -7,7 +7,7 @@ This page follows the project Master design system with these graph-specific rul
 - Single-clicking any graph node selects it and updates the right-side inspector; graph-node selection never changes the directory scope unexpectedly.
 - Motion is restrained and functional: nodes fade in by sequence, relationship strokes flow to express direction, and the selected metric receives a subtle focus pulse. Disable all motion under `prefers-reduced-motion`.
 
-- Three-pane desktop workspace: 248px directory tree, flexible graph canvas, 310px details inspector.
+- Two-column desktop workspace: a compact directory tree and a flexible, visually dominant graph canvas.
 - L1–L4 directory hierarchy is the primary navigation and remains independently scrollable.
 - Use the vendored AntV G6 renderer for the network and keep the relationship table as the semantic fallback.
 - Theme-to-metric edges use quiet blue-gray strokes; metric-to-metric relationships use amber dashed directional edges.
@@ -17,6 +17,7 @@ This page follows the project Master design system with these graph-specific rul
 - Selected state uses a blue halo, stronger node fill, and high-contrast white labels; related and cross-theme metrics use amber accents.
 - Node type, relationship direction and selection must be communicated with labels, shapes and line styles, not color alone.
 - Every graph must include a keyboard-accessible relationship list/table as the semantic fallback.
-- Clicking any directory or metric node updates the details inspector without opening a modal or leaving the graph context.
+- Clicking any graph node opens a details drawer from the graph stage's right edge without changing the directory scope or pushing content below the graph.
+- The inspector drawer overlays the graph, has an explicit close action, supports Escape, and gives its content area independent vertical scrolling for long field sets.
 - Empty directory topics remain visible and show a factual empty state; never fabricate example metrics.
-- On tablet, the details inspector moves below the graph. On narrow screens, directory, graph and details stack vertically while the SVG scrolls inside its panel.
+- On tablet and narrow screens, the inspector remains an in-canvas overlay and expands to near-full graph width; it never stacks beneath the graph.
