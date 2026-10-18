@@ -624,3 +624,12 @@ main small{font-size:10px!important;line-height:1.45}
   .audit-table th,.audit-table td{padding:9px 10px}
   .review-list-panel .review-compact-table td{font-size:10px}
 }
+
+/* v86 · keep the knowledge-set rail aligned with the selection workspace */
+.set-workbench:has(.selection-rule-grid){align-items:stretch}
+.set-workbench:has(.selection-rule-grid)>.set-sidebar{
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
+}
+.set-workbench:has(.selection-rule-grid)>.set-sidebar .set-list{flex:1}
