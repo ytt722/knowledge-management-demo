@@ -6,6 +6,19 @@
 
 需要 Node.js 18 或更高版本。在项目目录执行：
 
+### Windows 一键启动（推荐）
+
+双击项目根目录的 \`start-demo.cmd\`，或在 PowerShell 中执行：
+
+\`\`\`powershell
+cd C:\Users\12615\Documents\方案设计\sites\knowledge-management-demo
+.\start-demo.cmd
+\`\`\`
+
+启动脚本会优先使用系统 Node.js；若系统未安装 Node.js，则尝试使用 Codex 自带的 Node.js，因此不要求本机存在 \`npm\` 命令。
+
+### 使用 npm
+
 \`\`\`powershell
 npm start
 \`\`\`
