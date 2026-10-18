@@ -426,3 +426,6 @@ main{background:linear-gradient(#f4f6f9,#f6f8fb);min-width:0}.topbar{height:52px
 @media(max-width:1320px){.kg-workbench{grid-template-columns:220px minmax(520px,1fr)}}
 @media(max-width:820px){.kg-workbench{grid-template-columns:1fr}.kg-node-drawer{width:calc(100% - 20px);min-width:0}.kg-node-drawer-head{min-height:62px}.kg-graph-frame{isolation:isolate}}
 @media(prefers-reduced-motion:reduce){.kg-node-drawer{transition:none}.kg-node-drawer-head button{transition:none}}
+
+/* v63 — all graph outlines and relationships use solid strokes */
+.kg-edge,.directory-edge,.theme-edge,.metric-edge,.kg-node.external .kg-node-shell,.kg-node.external rect{stroke-dasharray:none!important;animation:none!important}

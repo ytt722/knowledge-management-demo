@@ -10,7 +10,7 @@ This page follows the project Master design system with these graph-specific rul
 - Two-column desktop workspace: a compact directory tree and a flexible, visually dominant graph canvas.
 - L1–L4 directory hierarchy is the primary navigation and remains independently scrollable.
 - Use the vendored AntV G6 renderer for the network and keep the relationship table as the semantic fallback.
-- Theme-to-metric edges use quiet blue-gray strokes; metric-to-metric relationships use amber dashed directional edges.
+- Theme-to-metric edges use quiet blue-gray strokes; metric-to-metric relationships use amber solid directional edges. Every node outline and graph edge remains solid.
 - Use a restrained Neo4j-inspired visual language: circular directory, theme, and metric nodes with concentric halos, thin relationship lines, and compact labels inside each node.
 - Render L1/L2/L3 scopes with G6's force-directed layout so the complete hierarchy can settle into readable clusters; theme views use a concentric layout.
 - The graph stage supports pan, wheel/pinch zoom, node dragging, fit-to-view controls, animated layout entry, and direct node selection.
