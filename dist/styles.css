@@ -633,3 +633,13 @@ main small{font-size:10px!important;line-height:1.45}
   flex-direction:column;
 }
 .set-workbench:has(.selection-rule-grid)>.set-sidebar .set-list{flex:1}
+
+/* v87 · compact structured review and keep directory/graph panels exactly aligned */
+@media(min-width:821px){
+  .kg-workbench{--kg-panel-height:680px;align-items:stretch}
+  .kg-workbench>.kg-directory,
+  .kg-workbench>.kg-canvas-panel{height:var(--kg-panel-height);min-height:0}
+  .kg-workbench>.kg-canvas-panel{display:flex;flex-direction:column}
+  .kg-workbench>.kg-canvas-panel>.kg-graph-frame{flex:1;min-height:0}
+  .kg-workbench>.kg-canvas-panel .kg-g6-shell{height:100%;min-height:0}
+}
