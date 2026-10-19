@@ -13,16 +13,16 @@ const domains = [
   makeDomain('quality','质量运营','质','#2f9aa0','质量指标、问题、改进与运营知识',138,74,2,55,'质量运营','质量事件','质量改进','质量运营专委会')
 ];
 const stages = [
-  {id:'intake',label:'知识集成',icon:'↗',hint:'原始知识准入 · 01'},
-  {id:'selection',label:'知识筛选',icon:'▤',hint:'原始知识准入 · 02'},
-  {id:'intake-quality',label:'质量检查',icon:'◫',hint:'原始知识准入 · 03'},
-  {id:'raw-review',label:'知识审核',icon:'✓',hint:'原始知识准入 · 04'},
-  {id:'raw-certification',label:'知识认证',icon:'◎',hint:'原始知识准入 · 05'},
-  {id:'extract',label:'知识抽取',icon:'◇',hint:'结构化知识准出 · 01'},
-  {id:'extract-quality',label:'质量检查',icon:'✓',hint:'结构化知识准出 · 02'},
-  {id:'review',label:'知识审核',icon:'✓',hint:'结构化知识准出 · 03'},
-  {id:'approval',label:'知识审批',icon:'◉',hint:'结构化知识准出 · 04'},
-  {id:'certification',label:'知识认证',icon:'◎',hint:'结构化知识准出 · 05'},
+  {id:'intake',label:'知识集成',icon:'↗',hint:'原始知识接入 · 01'},
+  {id:'selection',label:'知识筛选',icon:'▤',hint:'原始知识接入 · 02'},
+  {id:'intake-quality',label:'质量检查',icon:'◫',hint:'原始知识接入 · 03'},
+  {id:'raw-review',label:'知识审核',icon:'✓',hint:'原始知识接入 · 04'},
+  {id:'raw-certification',label:'知识认证',icon:'◎',hint:'原始知识接入 · 05'},
+  {id:'extract',label:'知识抽取',icon:'◇',hint:'结构化知识加工 · 01'},
+  {id:'extract-quality',label:'质量检查',icon:'✓',hint:'结构化知识加工 · 02'},
+  {id:'review',label:'知识审核',icon:'✓',hint:'结构化知识加工 · 03'},
+  {id:'approval',label:'知识审批',icon:'◉',hint:'结构化知识加工 · 04'},
+  {id:'certification',label:'知识认证',icon:'◎',hint:'结构化知识加工 · 05'},
   {id:'service',label:'知识服务构建',icon:'⌁',hint:'入库 · 索引 · 发布'}
 ];
 const roles = [
@@ -33,8 +33,8 @@ const roles = [
 ];
 const navItems=[...stages.map(x=>({...x})),{id:'storage',label:'知识入库',icon:'▤'},{id:'operations',label:'运营看板',icon:'▦'}];
 const homeJourneyGroups=[
-  {no:'01',name:'原始知识准入',icon:'↗',desc:'从多源知识汇聚到组织级认证，形成可信、可追溯的原始知识包',route:'intake',items:[['知识集成','系统管道 / 离线上传'],['知识筛选','自动添加 / 场景标签'],['质量检查','规则 / AI / 多模态'],['知识审核','领域知识专家'],['知识认证','领域专委会责任人']]},
-  {no:'02',name:'结构化知识准出',icon:'◇',desc:'将已准入知识抽取为结构化资产，经完整治理后形成认证知识包',route:'extract',items:[['知识抽取','知识集 / Schema'],['质量检查','完整 / 一致 / 准确'],['知识审核','领域知识专家'],['知识审批','领域知识责任人'],['知识认证','领域专委会责任人']]},
+  {no:'01',name:'原始知识接入',icon:'↗',desc:'从多源知识汇聚到组织级认证，形成可信、可追溯的原始知识包',route:'intake',items:[['知识集成','系统管道 / 离线上传'],['知识筛选','自动添加 / 场景标签'],['质量检查','规则 / AI / 多模态'],['知识审核','领域知识专家'],['知识认证','领域专委会责任人']]},
+  {no:'02',name:'结构化知识加工',icon:'◇',desc:'将已接入知识抽取为结构化资产，经完整治理后形成认证知识包',route:'extract',items:[['知识抽取','知识集 / Schema'],['质量检查','完整 / 一致 / 准确'],['知识审核','领域知识专家'],['知识审批','领域知识责任人'],['知识认证','领域专委会责任人']]},
   {no:'03',name:'知识服务',icon:'⌁',desc:'将认证知识入库并构建可消费、可演进的检索服务',route:'storage',items:[['知识入库','版本化 / 可追溯'],['检索服务构建','向量 / 图谱 / 混合'],['知识消费','API / MCP / Agent']]}
 ];
 const demoDocs=[
@@ -241,7 +241,7 @@ function structuredReviewPage(){if(!state.reviewWorkItem)return workQueuePage('r
 function structuredApprovalPage(){if(!state.approvalWorkItem)return workQueuePage('approval','知识审批','领域知识责任人','审批专家审核通过的结构化知识集，确认准确性、适用性与业务可用性。','structured','approval').replace('STAGE 05','结构化知识准出 04 / 05');return approvalGraphPage().replace('STAGE 05','结构化知识准出 04 / 05').replace('<span class="governance-step">05</span>','<span class="governance-step">04</span>')}
 function structuredCertificationPage(){if(!state.certificationWorkItem)return workQueuePage('certification','知识认证','领域专委会责任人','对审批通过的结构化知识集进行组织级定性，完成结构化知识准出。','structured','certification').replace('STAGE 06','结构化知识准出 05 / 05');return certificationV3().replace('STAGE 06','结构化知识准出 05 / 05').replace('<span class="governance-step">06</span>','<span class="governance-step">05</span>')}
 function renderPage(){const map={intake:integrationPage,selection:selectionPage,'intake-quality':()=>qualityCheckPage('raw'),'raw-review':rawReviewPage,'raw-certification':rawCertificationPage,parse:()=>qualityCheckPage('raw'),extract:()=>extractTaskListPage().replace('STAGE 03','结构化知识准出 01 / 05'),'extract-quality':()=>qualityCheckPage('structured'),review:structuredReviewPage,approval:structuredApprovalPage,certification:structuredCertificationPage,storage:storageV2,service:retrievalServiceV2,operations};$('#page').innerHTML=(map[state.route]||integrationPage)()}
-function render(){renderShell();renderPage();bindDynamic()}
+function render(){renderShell();renderPage();['#main-nav','#page-section','#page-crumb','#page'].forEach(selector=>{const element=$(selector);if(element)element.innerHTML=element.innerHTML.replaceAll('原始知识准入','原始知识接入').replaceAll('结构化知识准出','结构化知识加工')});bindDynamic()}
 function bindDynamic(){
   document.querySelectorAll('[data-route]').forEach(x=>x.onclick=()=>go(x.dataset.route));
   document.querySelectorAll('[data-intake-tab]').forEach(x=>x.onclick=()=>{state.intakeTab=x.dataset.intakeTab;render()});
