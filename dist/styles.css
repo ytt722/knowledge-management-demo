@@ -636,7 +636,11 @@ main small{font-size:10px!important;line-height:1.45}
 
 /* v87 · compact structured review and keep directory/graph panels exactly aligned */
 @media(min-width:821px){
-  .kg-workbench{--kg-panel-height:680px;align-items:stretch}
+  .kg-workbench{
+    --kg-panel-height:min(580px,calc(100vh - 310px));
+    --kg-panel-height:min(580px,calc(100dvh - 310px));
+    align-items:stretch;
+  }
   .kg-workbench>.kg-directory,
   .kg-workbench>.kg-canvas-panel{height:var(--kg-panel-height);min-height:0}
   .kg-workbench>.kg-canvas-panel{display:flex;flex-direction:column}
