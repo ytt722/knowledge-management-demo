@@ -399,7 +399,7 @@ main{background:linear-gradient(#f4f6f9,#f6f8fb);min-width:0}.topbar{height:52px
 
 /* v60 · AntV G6 premium knowledge graph workbench */
 .page:has(.kg-workbench){max-width:none;padding:22px 24px 48px;background:linear-gradient(180deg,#f4f7fa 0,#eef2f6 100%)}
-.page:has(.kg-workbench) .page-head{margin-bottom:16px}.page:has(.kg-workbench) .page-head h1{color:#0f263d;font-size:25px;letter-spacing:-.35px}
+.page:has(.kg-workbench) .page-head{margin-bottom:16px}.page:has(.kg-workbench) .page-head h1{color:#0f263d;font-size:25px;letter-spacing:-.35px}.page:has(.kg-workbench) .page-head p{display:none}
 .kg-summary{min-height:78px;padding:14px 18px;border:1px solid #173a59;background:linear-gradient(118deg,#0c2238 0%,#123b5b 55%,#102e48 100%);box-shadow:0 14px 34px rgba(15,38,61,.14)}
 .kg-summary>div span{color:#7ec8e4}.kg-summary>div b{color:#f4f9fc;font-size:13px}.kg-summary dl div{border-left-color:rgba(162,207,228,.2)}.kg-summary dt{color:#fff}.kg-summary dd{color:#9db7c8}
 .kg-workbench{grid-template-columns:232px minmax(620px,1fr) 296px;gap:14px}.kg-workbench>.panel{border-color:#d8e1e8;border-radius:10px;box-shadow:0 8px 26px rgba(16,40,63,.07)}
@@ -637,8 +637,8 @@ main small{font-size:10px!important;line-height:1.45}
 /* v87 · compact structured review and keep directory/graph panels exactly aligned */
 @media(min-width:821px){
   .kg-workbench{
-    --kg-panel-height:min(580px,calc(100vh - 310px));
-    --kg-panel-height:min(580px,calc(100dvh - 310px));
+    --kg-panel-height:min(680px,calc(100vh - 235px));
+    --kg-panel-height:min(680px,calc(100dvh - 235px));
     align-items:stretch;
   }
   .kg-workbench>.kg-directory,
