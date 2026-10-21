@@ -67,7 +67,7 @@
     }
     resize(){
       const rect=this.canvas.parentElement.getBoundingClientRect();
-      this.W=Math.max(320,Math.round(rect.width));this.H=clamp(Math.round(this.W*.56),520,680);this.dpr=Math.min(devicePixelRatio||1,2);
+      this.W=Math.max(320,Math.round(rect.width));this.H=Math.max(360,Math.round(rect.height||this.W*.56));this.dpr=Math.min(devicePixelRatio||1,2);
       this.canvas.width=Math.round(this.W*this.dpr);this.canvas.height=Math.round(this.H*this.dpr);
       this.canvas.style.width=`${this.W}px`;this.canvas.style.height=`${this.H}px`;this.draw();
     }
