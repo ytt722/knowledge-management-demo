@@ -174,7 +174,6 @@ function renderShell(){
   const navButton=(id,label,icon)=>`<button class="nav-item ${state.route===id||(id==='build'&&buildRoutes.includes(state.route))?'active':''}" data-route="${id}"><span class="nav-icon">${navIcon(icon)}</span><span class="nav-label">${label}</span></button>`;
   $('#main-nav').innerHTML=`<div class="nav-group-label">知识底座</div>${navButton('overview','知识概览','overview')}${navButton('build','知识构建','extract')}`;
   const role=roles.find(r=>r.id===state.role);$('#role-name').textContent=role.name;$('#role-avatar').textContent=role.short;
-  $('#role-menu').innerHTML=roles.map(r=>`<div class="role-option" data-role="${r.id}"><span class="avatar">${r.short}</span><span><b>${r.name}</b><p>${r.desc}</p></span></div>`).join('');
   const currentDomain=domain();$('#top-domain-name').textContent=currentDomain.name;$('#top-domain-badge').textContent=currentDomain.icon;$('#top-domain-badge').style.background=currentDomain.color;
   $('#domain-menu').innerHTML=domains.map(d=>`<button class="domain-option ${d.id===state.domain?'active':''}" data-domain="${d.id}"><span style="--domain:${d.color}">${d.icon}</span><b>${d.name}</b><small>${d.org+d.team} 项知识资产</small></button>`).join('');
   const names={overview:'知识全景图',build:'知识构建','build-selection':'文件筛选','build-review':'文件复核','build-approval':'文件审批','build-extract':'知识抽取','build-knowledge-review':'知识复核','build-knowledge-approval':'知识审批','build-publish':'知识发布'};
@@ -592,9 +591,7 @@ function applyReviewFilters(){
   document.querySelector('.review-empty')?.classList.toggle('show',shown===0);const count=document.querySelector('#review-filter-count');if(count)count.textContent=`当前显示 ${shown} / ${document.querySelectorAll('[data-review-values]').length} 条`;
 }
 function applyKnowledgeMemberFilters(){const title=(document.querySelector('[data-knowledge-filter="title"]')?.value||'').trim().toLowerCase(),source=document.querySelector('[data-knowledge-filter="source"]')?.value||'';let shown=0;document.querySelectorAll('.knowledge-member-table tbody tr').forEach(row=>{const match=(!title||row.dataset.knowledgeTitle.toLowerCase().includes(title))&&(!source||row.dataset.knowledgeSource===source);row.hidden=!match;if(match)shown++});document.querySelector('.knowledge-filter-empty')?.classList.toggle('show',shown===0)}
-$('#role-switcher').onclick=e=>{if(e.target.closest('.role-option'))return;$('#role-switcher').classList.toggle('open')};
 $('#domain-switcher').onclick=e=>{if(e.target.closest('.domain-option'))return;$('#domain-switcher').classList.toggle('open')};
-document.addEventListener('click',e=>{const r=e.target.closest('[data-role]');if(r){state.role=r.dataset.role;$('#role-switcher').classList.remove('open');toast(`已切换为${roles.find(x=>x.id===state.role).name}视角`);render()}});
 window.addEventListener('hashchange',()=>{closeModal();const route=location.hash.slice(1)||'overview';state.route=route;const routeRole={'build-review':'expert','build-approval':'owner','build-knowledge-review':'expert','build-knowledge-approval':'owner'};state.role=routeRole[route]||'admin';render()});
 syncDomainSamples();
 render();
