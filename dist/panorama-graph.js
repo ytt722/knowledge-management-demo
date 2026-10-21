@@ -10,7 +10,7 @@
 
   function buildModel(){
     const source=window.KG_DATA||{directory:[],topicMetrics:{},relations:[]};
-    const rows=source.directory||[],topicMetrics=source.topicMetrics||{};
+    const rows=source.directory||[],topicMetrics=source.topicMetrics||{},metricInfo=source.metricInfo||{};
     const groups={
       l1:unique(rows.map(x=>x['责任中心'])),
       l2:unique(rows.map(x=>x['业务域'])),
@@ -20,7 +20,7 @@
     };
     const nodes=[],byKey=new Map();
     Object.entries(groups).forEach(([type,names])=>names.forEach((label,index)=>{
-      const node={id:`${type}:${label}`,type,label,index,x:0,y:0,vx:0,vy:0,targetX:0,targetY:0};
+      const node={id:`${type}:${label}`,type,label,index,published:type==='metric'?metricInfo[label]?.['指标是否已注册']==='是':null,x:0,y:0,vx:0,vy:0,targetX:0,targetY:0};
       nodes.push(node);byKey.set(pairKey(type,label),node);
     }));
     const edges=[],seen=new Set();
@@ -106,7 +106,7 @@
       if(released){delete released.fx;delete released.fy;released.targetX=released.x;released.targetY=released.y;this.announce(this.pointerMoved?`${LABELS[released.type]} ${released.label} 已移动`:`已选择${LABELS[released.type]}：${released.label}`)}
       this.dragNode=null;this.pan=null;this.canvas.classList.remove('is-dragging','is-panning');
       if(this.canvas.hasPointerCapture(event.pointerId))this.canvas.releasePointerCapture(event.pointerId);
-      if(released){if(this.pointerMoved)this.focus=null;else this.select(released)}
+      if(released)this.focus=null;
       this.draw();
     }
     wheel(event){event.preventDefault();const factor=event.deltaY<0?1.12:.89;const before=this.graphPoint(event);this.scale=clamp(this.scale*factor,.42,2.6);const after=this.graphPoint(event);this.tx+=(after.x-before.x)*this.scale;this.ty+=(after.y-before.y)*this.scale;this.draw()}
@@ -152,11 +152,11 @@
     }
     keydown(event){
       if(!['ArrowRight','ArrowDown','ArrowLeft','ArrowUp','Enter',' '].includes(event.key))return;event.preventDefault();
-      if(event.key==='Enter'||event.key===' '){if(this.focus)this.select(this.focus);return}
+      if(event.key==='Enter'||event.key===' '){if(this.focus)this.announce(this.summary(this.focus));return}
       const delta=(event.key==='ArrowRight'||event.key==='ArrowDown')?1:-1,index=this.focus?this.nodes.indexOf(this.focus):-1;this.focus=this.nodes[(index+delta+this.nodes.length)%this.nodes.length];this.announce(`${LABELS[this.focus.type]}：${this.focus.label}`);this.draw();
     }
-    select(node){document.dispatchEvent(new CustomEvent('panorama:select',{detail:{name:node.label,type:LABELS[node.type]}}))}
-    showTip(node,event){const tip=this.canvas.parentElement.querySelector('.panorama-tooltip');if(!tip)return;const rect=this.canvas.getBoundingClientRect();tip.hidden=false;tip.style.left=`${event.clientX-rect.left+14}px`;tip.style.top=`${event.clientY-rect.top+12}px`;tip.innerHTML=`<b>${node.label}</b><span>${LABELS[node.type]} · ${this.incident(node).length} 条关联</span>`}
+    summary(node){const base=`${LABELS[node.type]}：${node.label}，${this.incident(node).length} 条关联`;return node.type!=='metric'?base:`${base}，发布状态：${node.published?'已发布，复核人金明哲，审批人蒋保平':'未发布'}`}
+    showTip(node,event){const tip=this.canvas.parentElement.querySelector('.panorama-tooltip');if(!tip)return;const rect=this.canvas.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;tip.hidden=false;tip.innerHTML=node.type==='metric'?`<b>${node.label}</b><span>指标 · ${this.incident(node).length} 条关联</span><dl><div><dt>发布状态</dt><dd class="${node.published?'published':'unpublished'}">${node.published?'已发布':'未发布'}</dd></div>${node.published?'<div><dt>复核人</dt><dd>金明哲</dd></div><div><dt>审批人</dt><dd>蒋保平</dd></div>':''}</dl>`:`<b>${node.label}</b><span>${LABELS[node.type]} · ${this.incident(node).length} 条关联</span>`;tip.style.left=`${clamp(x+14,8,rect.width-tip.offsetWidth-8)}px`;tip.style.top=`${y+tip.offsetHeight+16>rect.height?Math.max(8,y-tip.offsetHeight-12):y+12}px`}
     hideTip(){const tip=this.canvas.parentElement.querySelector('.panorama-tooltip');if(tip)tip.hidden=true}
     announce(text){const live=this.canvas.parentElement.querySelector('.panorama-live');if(live)live.textContent=text}
   }
