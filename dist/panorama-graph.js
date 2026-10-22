@@ -36,6 +36,7 @@
       add(byKey.get(pairKey('l3',row['对象'])),byKey.get(pairKey('l4',row['主题'])));
     });
     Object.entries(topicMetrics).forEach(([topic,metrics])=>metrics.forEach(metric=>add(byKey.get(pairKey('l4',topic)),byKey.get(pairKey('metric',metric)))));
+    add(byKey.get(pairKey('l3','渠道')),byKey.get(pairKey('l3','客户')),'relation','关联');
     (source.relations||[]).forEach(rel=>add(byKey.get(pairKey('metric',rel.source)),byKey.get(pairKey('metric',rel.target)),'relation',rel.name||'关联'));
     return {nodes,edges,groups};
   }
