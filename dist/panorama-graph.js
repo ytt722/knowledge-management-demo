@@ -73,18 +73,18 @@
       this.canvas.style.width=`${this.W}px`;this.canvas.style.height=`${this.H}px`;this.draw();
     }
     layout(){
-      const layerY={l1:76,l2:180,l3:292,l4:420,metric:565};
-      const usable=Math.max(820,this.W-110);
-      Object.entries(this.model.groups).forEach(([type,names])=>{
-        const count=names.length;
-        names.forEach((name,index)=>{
-          const node=this.nodes.find(n=>n.type===type&&n.label===name);
-          const jitter=(index%2?1:-1)*Math.min(12,count*1.3);
-          node.targetX=55+usable*(index+.5)/Math.max(1,count);
-          node.targetY=layerY[type]+(type==='metric'?(index%3-1)*22:jitter);
-          node.x=node.targetX;node.y=node.targetY;node.vx=0;node.vy=0;
-        });
+      const centerX=this.W/2,centerY=this.H/2,degree=new Map(this.nodes.map(node=>[node,0]));
+      this.edges.forEach(edge=>{degree.set(edge.source,(degree.get(edge.source)||0)+1);degree.set(edge.target,(degree.get(edge.target)||0)+1)});
+      const ordered=[...this.nodes].sort((a,b)=>(degree.get(b)||0)-(degree.get(a)||0)||a.id.localeCompare(b.id));
+      ordered.forEach((node,index)=>{
+        const angle=index*2.399963229728653+(node.type==='metric'?.42:0);
+        const radius=index===0?0:Math.min(Math.min(this.W,this.H)*.4,34+Math.sqrt(index)*28);
+        const typeOffset={l1:-.22,l2:.16,l3:-.08,l4:.1,metric:0}[node.type]||0;
+        node.x=centerX+Math.cos(angle+typeOffset)*radius;
+        node.y=centerY+Math.sin(angle+typeOffset)*radius*.74;
+        node.targetX=centerX;node.targetY=centerY;node.vx=0;node.vy=0;
       });
+      this.alpha=.9;
     }
     radius(node){return node.type==='l1'?12:node.type==='l2'?11:node.type==='l3'?10:node.type==='l4'?8:5.5}
     screen(node){return {x:(node.x-this.W/2)*this.scale+this.W/2+this.tx,y:(node.y-this.H/2)*this.scale+this.H/2+this.ty}}
@@ -93,7 +93,7 @@
     down(event){
       const node=this.pick(event);this.canvas.setPointerCapture(event.pointerId);this.pointerMoved=false;
       this.start={x:event.clientX,y:event.clientY};
-      if(node){this.dragNode=node;this.focus=node;node.fx=node.x;node.fy=node.y;this.alpha=.22;this.canvas.classList.add('is-dragging');this.announce(`正在拖动${LABELS[node.type]}：${node.label}，已高亮 ${this.incident(node).length} 条关联边`)}
+      if(node){this.dragNode=node;this.focus=node;node.fx=node.x;node.fy=node.y;this.alpha=.34;if(!this.paused&&!this.raf)this.loop();this.canvas.classList.add('is-dragging');this.announce(`正在拖动${LABELS[node.type]}：${node.label}，已高亮 ${this.incident(node).length} 条关联边`)}
       else{this.pan={x:event.clientX,y:event.clientY,tx:this.tx,ty:this.ty};this.canvas.classList.add('is-panning')}
       this.draw();
     }
@@ -104,11 +104,11 @@
     }
     up(event){
       const released=this.dragNode;
-      if(released){delete released.fx;delete released.fy;released.targetX=released.x;released.targetY=released.y;this.announce(this.pointerMoved?`${LABELS[released.type]} ${released.label} 已移动`:`已选择${LABELS[released.type]}：${released.label}`)}
+      if(released){delete released.fx;delete released.fy;released.targetX=released.x;released.targetY=released.y;this.alpha=Math.max(this.alpha,.28);this.announce(this.pointerMoved?`${LABELS[released.type]} ${released.label} 已移动`:`已选择${LABELS[released.type]}：${released.label}`)}
       this.dragNode=null;this.pan=null;this.canvas.classList.remove('is-dragging','is-panning');
       if(this.canvas.hasPointerCapture(event.pointerId))this.canvas.releasePointerCapture(event.pointerId);
       if(released)this.focus=null;
-      this.draw();
+      if(released&&!this.paused&&!this.raf)this.loop();else this.draw();
     }
     wheel(event){event.preventDefault();const factor=event.deltaY<0?1.12:.89;const before=this.graphPoint(event);this.scale=clamp(this.scale*factor,.42,2.6);const after=this.graphPoint(event);this.tx+=(after.x-before.x)*this.scale;this.ty+=(after.y-before.y)*this.scale;this.draw()}
     zoom(factor){this.scale=clamp(this.scale*factor,.42,2.6);this.draw()}
@@ -121,11 +121,19 @@
     related(node){const result=new Set([node]);this.incident(node).forEach(edge=>{result.add(edge.source);result.add(edge.target)});return result}
     physics(){
       if(this.paused||this.alpha<.006||this.dragNode)return;
-      for(const node of this.nodes){node.vx+=(node.targetX-node.x)*.007*this.alpha;node.vy+=(node.targetY-node.y)*.014*this.alpha}
-      for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
-        const a=this.nodes[i],b=this.nodes[j];if(a.type!==b.type)continue;let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1;if(d2>9000)continue;const force=140*this.alpha/d2;a.vx+=dx*force;a.vy+=dy*force;b.vx-=dx*force;b.vy-=dy*force;
+      const centerX=this.W/2,centerY=this.H/2;
+      for(const node of this.nodes){node.vx+=(centerX-node.x)*.0018*this.alpha;node.vy+=(centerY-node.y)*.0018*this.alpha}
+      for(const edge of this.edges){
+        const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,ideal=edge.kind==='relation'?112:72;
+        const force=(distance-ideal)*.0032*this.alpha,nx=dx/distance,ny=dy/distance;
+        edge.source.vx+=nx*force;edge.source.vy+=ny*force;edge.target.vx-=nx*force;edge.target.vy-=ny*force;
       }
-      for(const node of this.nodes){node.x+=node.vx;node.y+=node.vy;node.vx*=.82;node.vy*=.82}this.alpha*=.982;
+      for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
+        const a=this.nodes[i],b=this.nodes[j];let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1;if(d2>42000)continue;
+        const distance=Math.sqrt(d2),minimum=this.radius(a)+this.radius(b)+18,repulsion=(distance<minimum?240:45)*this.alpha/d2;
+        a.vx+=dx*repulsion;a.vy+=dy*repulsion;b.vx-=dx*repulsion;b.vy-=dy*repulsion;
+      }
+      for(const node of this.nodes){node.x+=node.vx;node.y+=node.vy;node.vx*=.84;node.vy*=.84}this.alpha*=.988;
     }
     loop(){cancelAnimationFrame(this.raf);const frame=()=>{this.physics();this.draw();if(!this.paused&&this.alpha>=.006)this.raf=requestAnimationFrame(frame);else this.raf=0};this.raf=requestAnimationFrame(frame)}
     draw(){
