@@ -873,5 +873,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* v132 · keep the complete foundation ripple inside the hero viewport */
 .foundation-ripple:before{width:194px;height:194px}.foundation-ripple .foundation-ambient{width:272px;height:272px}.foundation-ripple .foundation-wave{width:216px;height:216px;margin:-108px 0 0 -108px}@keyframes foundationWave{0%{transform:scale(.5);opacity:0}12%{opacity:.78}64%{opacity:.26}100%{transform:scale(1.25);opacity:0}}
+.foundation-ripple .foundation-capability.cap-top{top:17px}.foundation-ripple .foundation-capability.cap-bottom{bottom:17px}.foundation-ripple .foundation-capability.cap-left{left:calc(50% - 174px)}.foundation-ripple .foundation-capability.cap-right{right:calc(50% - 174px)}
 @media(max-width:1150px) and (min-width:901px){.foundation-ripple .foundation-ambient{width:252px;height:252px}.foundation-ripple .foundation-wave{width:202px;height:202px;margin:-101px 0 0 -101px}}
 @media(max-width:640px){.app-shell>main>.topbar{top:0}.file-lineage{grid-template-columns:34px minmax(0,1fr)}.file-lineage strong{grid-column:2;justify-self:start}.file-lineage em{white-space:normal}}
