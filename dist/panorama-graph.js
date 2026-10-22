@@ -93,12 +93,12 @@
     down(event){
       const node=this.pick(event);this.canvas.setPointerCapture(event.pointerId);this.pointerMoved=false;
       this.start={x:event.clientX,y:event.clientY};
-      if(node){this.dragNode=node;this.focus=node;node.fx=node.x;node.fy=node.y;this.alpha=.34;if(!this.paused&&!this.raf)this.loop();this.canvas.classList.add('is-dragging');this.announce(`正在拖动${LABELS[node.type]}：${node.label}，已高亮 ${this.incident(node).length} 条关联边`)}
+      if(node){this.dragNode=node;this.focus=node;node.fx=node.x;node.fy=node.y;this.alpha=.72;if(!this.paused&&!this.raf)this.loop();this.canvas.classList.add('is-dragging');this.announce(`正在拖动${LABELS[node.type]}：${node.label}，关联节点将随网络弹性跟随`)}
       else{this.pan={x:event.clientX,y:event.clientY,tx:this.tx,ty:this.ty};this.canvas.classList.add('is-panning')}
       this.draw();
     }
     move(event){
-      if(this.dragNode){const p=this.graphPoint(event);this.dragNode.x=p.x;this.dragNode.y=p.y;this.dragNode.fx=p.x;this.dragNode.fy=p.y;this.pointerMoved=true;this.alpha=.18;this.draw();return}
+      if(this.dragNode){const p=this.graphPoint(event);this.dragNode.x=p.x;this.dragNode.y=p.y;this.dragNode.fx=p.x;this.dragNode.fy=p.y;this.dragNode.vx=0;this.dragNode.vy=0;this.pointerMoved=true;this.alpha=.58;if(!this.paused&&!this.raf)this.loop();this.draw();return}
       if(this.pan){this.tx=this.pan.tx+event.clientX-this.pan.x;this.ty=this.pan.ty+event.clientY-this.pan.y;this.pointerMoved=true;this.draw();return}
       const node=this.pick(event);if(node!==this.hover){this.hover=node;this.draw()}node?this.showTip(node,event):this.hideTip();this.canvas.style.cursor=node?'grab':'grab';
     }
@@ -120,12 +120,13 @@
     incident(node){return this.edges.filter(edge=>edge.source===node||edge.target===node)}
     related(node){const result=new Set([node]);this.incident(node).forEach(edge=>{result.add(edge.source);result.add(edge.target)});return result}
     physics(){
-      if(this.paused||this.alpha<.006||this.dragNode)return;
+      if(this.paused||this.alpha<.006)return;
       const centerX=this.W/2,centerY=this.H/2;
       for(const node of this.nodes){node.vx+=(centerX-node.x)*.0018*this.alpha;node.vy+=(centerY-node.y)*.0018*this.alpha}
       for(const edge of this.edges){
         const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,ideal=edge.kind==='relation'?112:72;
-        const force=(distance-ideal)*.0032*this.alpha,nx=dx/distance,ny=dy/distance;
+        const lifted=this.dragNode&&(edge.source===this.dragNode||edge.target===this.dragNode);
+        const force=(distance-ideal)*(lifted?.022:.0032)*this.alpha,nx=dx/distance,ny=dy/distance;
         edge.source.vx+=nx*force;edge.source.vy+=ny*force;edge.target.vx-=nx*force;edge.target.vy-=ny*force;
       }
       for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
@@ -133,7 +134,7 @@
         const distance=Math.sqrt(d2),minimum=this.radius(a)+this.radius(b)+18,repulsion=(distance<minimum?240:45)*this.alpha/d2;
         a.vx+=dx*repulsion;a.vy+=dy*repulsion;b.vx-=dx*repulsion;b.vy-=dy*repulsion;
       }
-      for(const node of this.nodes){node.x+=node.vx;node.y+=node.vy;node.vx*=.84;node.vy*=.84}this.alpha*=.988;
+      for(const node of this.nodes){if(node===this.dragNode){node.vx=0;node.vy=0;continue}node.x+=node.vx;node.y+=node.vy;node.vx*=.84;node.vy*=.84}this.alpha*=this.dragNode?.996:.988;
     }
     loop(){cancelAnimationFrame(this.raf);const frame=()=>{this.physics();this.draw();if(!this.paused&&this.alpha>=.006)this.raf=requestAnimationFrame(frame);else this.raf=0};this.raf=requestAnimationFrame(frame)}
     draw(){
