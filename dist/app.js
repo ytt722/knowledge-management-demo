@@ -151,7 +151,7 @@ function syncDomainSamples(){
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2200)}
 function go(route){closeModal();if(route==='build-publish')state.publishWorkItem=null;state.route=route;const routeRole={'build-review':'expert','build-approval':'owner','build-knowledge-review':'expert','build-knowledge-approval':'owner'};state.role=routeRole[route]||'admin';location.hash=route;render();window.scrollTo({top:0,behavior:'auto'});const main=$('.app-shell>main');if(main)main.scrollTop=0;$('#page')?.focus({preventScroll:true})}
 function markDone(id){if(!state.completed.includes(id))state.completed.push(id)}
-function badge(status){const cls=status.includes('已')||status.includes('通过')||status.includes('正式')?'ok':status.includes('异常')||status.includes('驳回')?'bad':status.includes('待')||status.includes('构建')?'warn':'info';return `<span class="status ${cls}">${status}</span>`}
+function badge(status){const cls=status.includes('已')||status.includes('通过')||status.includes('正式')?'ok':status.includes('异常')||status.includes('驳回')||status.includes('废弃')?'bad':status.includes('待')||status.includes('构建')?'warn':'info';return `<span class="status ${cls}">${status}</span>`}
 function pageHead(kicker,title,desc,actions=''){return `<div class="page-head"><div><h1>${title}</h1></div><div class="head-actions">${actions}</div></div>`}
 function context(){return ''}
 function navIcon(name){
@@ -283,7 +283,7 @@ const workflowFileLists=[
 const schemaModels=[
   {id:'operation-analysis',name:'经营分析知识建模',version:'V1.6',status:'已启用',updated:'2026-10-18',desc:'围绕分析对象、主题、指标、规则、维度路径和策略构建经营分析语义结构',entities:8,relations:7},
   {id:'customer-risk',name:'客户风险分类知识建模',version:'V1.2',status:'已启用',updated:'2026-10-16',desc:'面向客户风险识别、风险分类、预警规则与处置策略的知识结构',entities:6,relations:5},
-  {id:'project-profit',name:'项目盈利分析知识建模',version:'V0.9',status:'草稿',updated:'2026-10-12',desc:'沉淀项目收入、成本、销毛、偏差原因及改进策略之间的关联',entities:7,relations:6}
+  {id:'project-profit',name:'项目盈利分析知识建模',version:'V0.9',status:'废弃',updated:'2026-10-12',desc:'沉淀项目收入、成本、销毛、偏差原因及改进策略之间的关联',entities:7,relations:6}
 ];
 const fileQualityChecks=[
   {no:1,item:'完整性',rule:'试读前2000字符，检查是否能提取足够文本（提取字符数 ≥ 100）',result:'试读前2000字符，实际提取有效文本 1,856 字符',verdict:'通过'},
