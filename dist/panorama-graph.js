@@ -48,7 +48,7 @@
       this.canvas=canvas;this.ctx=canvas.getContext('2d');this.model=buildModel();
       this.nodes=this.model.nodes;this.edges=this.model.edges;this.dpr=1;this.W=0;this.H=0;
       this.scale=1;this.tx=0;this.ty=0;this.dragNode=null;this.pan=null;this.hover=null;this.focus=null;
-      this.pointerMoved=false;this.alpha=.28;this.raf=0;this.paused=canvas.dataset.paused==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.pointerMoved=false;this.alpha=.28;this.raf=0;this.ambientStart=performance.now();this.paused=canvas.dataset.paused==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
       this.resizeObserver=new ResizeObserver(()=>this.resize());
       this.bind();this.resizeObserver.observe(canvas.parentElement);this.resize();this.layout();this.fit();this.loop();
     }
@@ -75,22 +75,23 @@
       this.canvas.style.width=`${this.W}px`;this.canvas.style.height=`${this.H}px`;this.draw();
     }
     layout(){
-      const centerX=this.W/2,centerY=this.H/2,maxRadius=Math.min(300,Math.min(this.W,this.H)*.41),degree=new Map(this.nodes.map(node=>[node,0]));
+      const centerX=this.W/2,centerY=this.H/2,maxRadiusX=Math.max(150,Math.min(520,(this.W-190)*.48)),maxRadiusY=Math.max(130,Math.min(310,(this.H-112)*.47)),degree=new Map(this.nodes.map(node=>[node,0]));
       this.edges.forEach(edge=>{degree.set(edge.source,(degree.get(edge.source)||0)+1);degree.set(edge.target,(degree.get(edge.target)||0)+1)});
       Object.entries(this.model.groups).forEach(([type])=>{
         const group=this.nodes.filter(node=>node.type===type).sort((a,b)=>(degree.get(b)||0)-(degree.get(a)||0)||a.label.localeCompare(b.label,'zh-CN'));
         const phase={l1:-Math.PI/2,l2:-Math.PI/2+.3,l3:-Math.PI/2-.18,l4:-Math.PI/2+.14,metric:-Math.PI/2-.06}[type]||0;
         group.forEach((node,index)=>{
-          const angle=phase+(Math.PI*2*index/Math.max(1,group.length));
+          const metricScatter=type==='metric',angle=metricScatter?phase+index*2.3999632297:phase+(Math.PI*2*index/Math.max(1,group.length));
           const jitter=type==='metric'?((index%3)-1)*5:type==='l4'?((index%2)*2-1)*3:0;
-          const radius=maxRadius*RING_RATIO[type]+jitter;
-          node.x=centerX+Math.cos(angle)*radius;
-          node.y=centerY+Math.sin(angle)*radius*.82;
+          const ratio=metricScatter?.79+.2*Math.sqrt((index+.5)/Math.max(1,group.length)):RING_RATIO[type];
+          node.x=centerX+Math.cos(angle)*(maxRadiusX*ratio+jitter);
+          node.y=centerY+Math.sin(angle)*(maxRadiusY*ratio+jitter*.45);
           node.targetX=node.x;node.targetY=node.y;node.vx=0;node.vy=0;
+          node.ambientPhase=(node.index+1)*1.618+(DEPTH[type]||1)*.73;
         });
       });
-      this.maxRadius=maxRadius;
-      this.alpha=.9;
+      this.maxRadiusX=maxRadiusX;this.maxRadiusY=maxRadiusY;
+      this.alpha=.04;
     }
     radius(node){return node.type==='l1'?12:node.type==='l2'?11:node.type==='l3'?10:node.type==='l4'?8:5.5}
     screen(node){return {x:(node.x-this.W/2)*this.scale+this.W/2+this.tx,y:(node.y-this.H/2)*this.scale+this.H/2+this.ty}}
@@ -125,33 +126,36 @@
     }
     incident(node){return this.edges.filter(edge=>edge.source===node||edge.target===node)}
     related(node){const result=new Set([node]);this.incident(node).forEach(edge=>{result.add(edge.source);result.add(edge.target)});return result}
-    physics(){
-      if(this.paused||this.alpha<.006)return;
+    physics(now=performance.now()){
+      if(this.paused)return;
+      const idle=this.alpha<.006&&!this.dragNode,time=(now-this.ambientStart)/1000;
       for(const node of this.nodes){
         if(node===this.dragNode)continue;
-        const anchor=node.type==='metric'?.0042:.0052;
-        node.vx+=(node.targetX-node.x)*anchor*this.alpha;node.vy+=(node.targetY-node.y)*anchor*this.alpha;
+        const amplitude=idle?(node.type==='metric'?2.2:node.type==='l4'?1.8:1.25):0;
+        const ambientX=Math.sin(time*.62+node.ambientPhase)*amplitude,ambientY=Math.cos(time*.48+node.ambientPhase*1.17)*amplitude*.68;
+        const anchor=idle?.055:(node.type==='metric'?.0065:.0075)*Math.max(this.alpha,.08);
+        node.vx+=(node.targetX+ambientX-node.x)*anchor;node.vy+=(node.targetY+ambientY-node.y)*anchor;
       }
-      for(const edge of this.edges){
-        const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,depthGap=Math.abs((DEPTH[edge.target.type]||0)-(DEPTH[edge.source.type]||0)),ideal=edge.kind==='relation'?118:Math.max(62,(this.maxRadius||240)*(.17+depthGap*.035));
+      if(!idle)for(const edge of this.edges){
+        const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,depthGap=Math.abs((DEPTH[edge.target.type]||0)-(DEPTH[edge.source.type]||0)),layoutRadius=Math.min(this.maxRadiusX||300,this.maxRadiusY||220),ideal=edge.kind==='relation'?118:Math.max(62,layoutRadius*(.17+depthGap*.035));
         const lifted=this.dragNode&&(edge.source===this.dragNode||edge.target===this.dragNode);
         const force=(distance-ideal)*(lifted?.022:.0032)*this.alpha,nx=dx/distance,ny=dy/distance;
         edge.source.vx+=nx*force;edge.source.vy+=ny*force;edge.target.vx-=nx*force;edge.target.vy-=ny*force;
       }
-      for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
+      if(!idle)for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
         const a=this.nodes[i],b=this.nodes[j];let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1;if(d2>42000)continue;
         const distance=Math.sqrt(d2),minimum=this.radius(a)+this.radius(b)+18,repulsion=(distance<minimum?240:45)*this.alpha/d2;
         a.vx+=dx*repulsion;a.vy+=dy*repulsion;b.vx-=dx*repulsion;b.vy-=dy*repulsion;
       }
-      for(const node of this.nodes){if(node===this.dragNode){node.vx=0;node.vy=0;continue}node.x+=node.vx;node.y+=node.vy;node.vx*=.84;node.vy*=.84}this.alpha*=this.dragNode?.996:.988;
+      for(const node of this.nodes){if(node===this.dragNode){node.vx=0;node.vy=0;continue}node.x+=node.vx;node.y+=node.vy;if(idle){node.x=clamp(node.x,node.targetX-4,node.targetX+4);node.y=clamp(node.y,node.targetY-3,node.targetY+3)}node.vx*=idle?.72:.82;node.vy*=idle?.72:.82}this.alpha*=this.dragNode?.996:.988;
     }
-    loop(){cancelAnimationFrame(this.raf);const frame=()=>{this.physics();this.draw();if(!this.paused&&this.alpha>=.006)this.raf=requestAnimationFrame(frame);else this.raf=0};this.raf=requestAnimationFrame(frame)}
+    loop(){cancelAnimationFrame(this.raf);const frame=now=>{this.physics(now);this.draw();if(!this.paused)this.raf=requestAnimationFrame(frame);else this.raf=0};this.raf=requestAnimationFrame(frame)}
     draw(){
       if(!this.ctx||!this.W)return;const c=this.ctx,d=this.dpr;c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,this.W,this.H);
       const glow=this.dragNode||this.focus,related=glow?this.related(glow):null;
       c.save();c.translate(this.W/2+this.tx,this.H/2+this.ty);c.scale(this.scale,this.scale);c.translate(-this.W/2,-this.H/2);
       c.save();c.globalAlpha=1;c.setLineDash([2/this.scale,7/this.scale]);
-      Object.entries(RING_RATIO).forEach(([type,ratio],index)=>{const radius=(this.maxRadius||Math.min(this.W,this.H)*.41)*ratio;c.beginPath();c.ellipse(this.W/2,this.H/2,radius,radius*.82,0,0,Math.PI*2);c.strokeStyle=index===4?'rgba(125,211,252,.13)':'rgba(151,172,207,.075)';c.lineWidth=(index===4?1:.7)/this.scale;c.stroke()});
+      Object.entries(RING_RATIO).forEach(([type,ratio],index)=>{const radiusX=(this.maxRadiusX||this.W*.4)*ratio,radiusY=(this.maxRadiusY||this.H*.4)*ratio;c.beginPath();c.ellipse(this.W/2,this.H/2,radiusX,radiusY,0,0,Math.PI*2);c.strokeStyle=index===4?'rgba(125,211,252,.12)':'rgba(151,172,207,.06)';c.lineWidth=(index===4?1:.7)/this.scale;c.stroke()});
       c.restore();
       for(const edge of this.edges){
         const active=!!glow&&(edge.source===glow||edge.target===glow),dim=!!glow&&!active;
@@ -163,12 +167,13 @@
         if(edge.kind==='relation'&&(active||this.scale>.82)){const mx=(edge.source.x+edge.target.x)/2,my=(edge.source.y+edge.target.y)/2;c.shadowBlur=0;c.globalAlpha=active?1:.72;c.fillStyle='#eef2f9';c.font=`${Math.max(8,9/this.scale)}px sans-serif`;c.textAlign='center';c.fillText(edge.name,mx,my-5/this.scale)}
       }
       c.shadowBlur=0;
+      const labelBoxes=[];
       for(const node of this.nodes){
         const active=node===glow||node===this.hover,dim=related&&!related.has(node),r=this.radius(node);
         c.globalAlpha=dim?.22:1;c.beginPath();c.arc(node.x,node.y,r,0,Math.PI*2);c.fillStyle=COLORS[node.type];
         c.shadowBlur=active?18/this.scale:node.type==='metric'?5/this.scale:9/this.scale;c.shadowColor=COLORS[node.type];c.fill();
         c.lineWidth=(active?2.2:1)/this.scale;c.strokeStyle=active?'#fff':'rgba(255,255,255,.62)';c.stroke();
-        if(node.type!=='metric'||active||this.scale>.62){c.shadowBlur=0;c.fillStyle=node.type==='l1'?'#f4e6c8':'#eef2f9';c.font=`${active?'600 ':''}${Math.max(8.5,10/this.scale)}px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif`;c.textAlign='center';c.textBaseline='top';const label=node.label.length>13?`${node.label.slice(0,13)}…`:node.label;c.fillText(label,node.x,node.y+r+7/this.scale)}
+        if(node.type!=='metric'||active||this.scale>.62){c.shadowBlur=0;c.fillStyle=node.type==='l1'?'#f4e6c8':'#eef2f9';c.font=`${active?'600 ':''}${Math.max(8.2,9.4/this.scale)}px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif`;c.textAlign='center';c.textBaseline='top';const maxChars=node.type==='metric'?8:13,label=node.label.length>maxChars?`${node.label.slice(0,maxChars)}…`:node.label,labelY=node.y+r+7/this.scale,labelWidth=c.measureText(label).width+6/this.scale,box={left:node.x-labelWidth/2,right:node.x+labelWidth/2,top:labelY-2/this.scale,bottom:labelY+12/this.scale},collides=labelBoxes.some(other=>box.left<other.right&&box.right>other.left&&box.top<other.bottom&&box.bottom>other.top);if(active||node.type!=='metric'||!collides){c.fillText(label,node.x,labelY);labelBoxes.push(box)}}
       }
       c.restore();c.globalAlpha=1;c.shadowBlur=0;
     }

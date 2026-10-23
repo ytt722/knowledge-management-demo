@@ -892,3 +892,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .journey-value-strip{grid-template-columns:repeat(4,minmax(112px,1fr)) minmax(220px,1.45fr)}
 @media(max-width:1150px){.journey-group-grid{grid-template-columns:240px 18px 240px 18px 240px 18px 240px}.journey-value-strip{grid-template-columns:repeat(4,1fr)}.journey-value-strip p{grid-column:1/-1}}
 @media(max-width:700px){.journey-value-strip{grid-template-columns:1fr 1fr}.journey-value-strip p{grid-column:1/-1}}
+
+/* v136 · aligned journey cards and organic panorama motion */
+.journey-group-grid{align-items:stretch}.journey-group{display:flex;height:auto;flex-direction:column}.journey-group .journey-items{flex:1}.journey-group>footer{margin-top:auto}.journey-connector{align-self:center}
+.panorama-canvas-wrap{background-color:#050912;background-image:radial-gradient(ellipse at 50% 50%,rgba(54,98,168,.2),transparent 48%),radial-gradient(circle at 18% 22%,rgba(83,199,220,.075),transparent 24%),radial-gradient(circle at 84% 72%,rgba(147,111,225,.07),transparent 27%)}
+.panorama-canvas-wrap:before,.panorama-canvas-wrap:after{display:none}
+.panorama-starfield{position:absolute;z-index:1;inset:0;overflow:hidden;pointer-events:none}
+.panorama-starfield i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:50%;background:rgba(224,241,255,.96);box-shadow:0 0 calc(var(--s)*3.2) rgba(132,203,255,.72),0 0 calc(var(--s)*7) rgba(94,154,255,.24);opacity:.12;animation:panoramaStarlight var(--d) ease-in-out var(--delay) infinite}
+.panorama-starfield i:nth-child(4n+1){background:#bdefff;box-shadow:0 0 calc(var(--s)*4) rgba(88,214,255,.72)}
+.panorama-starfield i:nth-child(7n+2){background:#ddd2ff;box-shadow:0 0 calc(var(--s)*4.5) rgba(167,139,250,.62)}
+.panorama-starfield i:nth-child(9n+3){width:calc(var(--s)*1.35);height:calc(var(--s)*1.35)}
+@keyframes panoramaStarlight{0%,100%{opacity:.08;transform:scale(.58)}28%{opacity:.34}56%{opacity:.88;transform:scale(1.28)}76%{opacity:.2;transform:scale(.82)}}
+@media(prefers-reduced-motion:reduce){.panorama-starfield i{animation:none;opacity:.32}}
