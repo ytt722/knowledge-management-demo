@@ -876,3 +876,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .foundation-ripple .foundation-capability.cap-top{top:17px}.foundation-ripple .foundation-capability.cap-bottom{bottom:17px}.foundation-ripple .foundation-capability.cap-left{left:calc(50% - 174px)}.foundation-ripple .foundation-capability.cap-right{right:calc(50% - 174px)}
 @media(max-width:1150px) and (min-width:901px){.foundation-ripple .foundation-ambient{width:252px;height:252px}.foundation-ripple .foundation-wave{width:202px;height:202px;margin:-101px 0 0 -101px}}
 @media(max-width:640px){.app-shell>main>.topbar{top:0}.file-lineage{grid-template-columns:34px minmax(0,1fr)}.file-lineage strong{grid-column:2;justify-self:start}.file-lineage em{white-space:normal}}
+
+/* v134 · layered panorama structure and ambient star field */
+.panorama-canvas-wrap{background-color:#060a12;background-image:radial-gradient(circle at 50% 48%,rgba(62,103,173,.18),transparent 36%),radial-gradient(circle at 18% 22%,rgba(94,200,216,.08),transparent 25%),radial-gradient(circle at 82% 76%,rgba(167,139,250,.075),transparent 28%)}
+.panorama-canvas-wrap:before,.panorama-canvas-wrap:after{content:"";position:absolute;z-index:0;inset:-12%;pointer-events:none;will-change:transform,opacity}
+.panorama-canvas-wrap:before{background-image:radial-gradient(circle,#d9ecff 0 1px,transparent 1.5px),radial-gradient(circle,#7dd3fc 0 .8px,transparent 1.35px),radial-gradient(circle,#a78bfa 0 .7px,transparent 1.25px);background-position:7px 13px,33px 41px,71px 19px;background-size:83px 79px,119px 107px,151px 137px;opacity:.34;animation:panoramaStarDrift 36s linear infinite}
+.panorama-canvas-wrap:after{background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(125,211,252,.9) 0 .8px,transparent 1.45px);background-position:19px 27px,61px 9px;background-size:173px 149px,211px 187px;opacity:.2;animation:panoramaStarPulse 6.8s ease-in-out infinite alternate}
+#panorama-canvas{z-index:2}.panorama-controls,.panorama-tooltip{z-index:4}
+@keyframes panoramaStarDrift{0%{transform:translate3d(-1.5%,-1%,0)}50%{transform:translate3d(1.5%,1%,0)}100%{transform:translate3d(-1.5%,-1%,0)}}
+@keyframes panoramaStarPulse{0%{opacity:.12;transform:scale(.99)}48%{opacity:.32}100%{opacity:.18;transform:scale(1.015)}}
+@media(prefers-reduced-motion:reduce){.panorama-canvas-wrap:before,.panorama-canvas-wrap:after{animation:none!important;transform:none!important}.panorama-canvas-wrap:before{opacity:.28}.panorama-canvas-wrap:after{opacity:.16}}

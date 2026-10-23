@@ -3,6 +3,8 @@
 
   const COLORS={l1:'#d8b572',l2:'#5ec8d8',l3:'#5fcf9b',l4:'#a78bfa',metric:'#7dd3fc'};
   const LABELS={l1:'责任中心',l2:'业务域',l3:'对象',l4:'主题',metric:'指标'};
+  const DEPTH={l1:1,l2:2,l3:3,l4:4,metric:5};
+  const RING_RATIO={l1:.13,l2:.31,l3:.49,l4:.7,metric:.94};
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
 
   function unique(values){return [...new Set(values.filter(Boolean))]}
@@ -73,17 +75,21 @@
       this.canvas.style.width=`${this.W}px`;this.canvas.style.height=`${this.H}px`;this.draw();
     }
     layout(){
-      const centerX=this.W/2,centerY=this.H/2,degree=new Map(this.nodes.map(node=>[node,0]));
+      const centerX=this.W/2,centerY=this.H/2,maxRadius=Math.min(300,Math.min(this.W,this.H)*.41),degree=new Map(this.nodes.map(node=>[node,0]));
       this.edges.forEach(edge=>{degree.set(edge.source,(degree.get(edge.source)||0)+1);degree.set(edge.target,(degree.get(edge.target)||0)+1)});
-      const ordered=[...this.nodes].sort((a,b)=>(degree.get(b)||0)-(degree.get(a)||0)||a.id.localeCompare(b.id));
-      ordered.forEach((node,index)=>{
-        const angle=index*2.399963229728653+(node.type==='metric'?.42:0);
-        const radius=index===0?0:Math.min(Math.min(this.W,this.H)*.4,34+Math.sqrt(index)*28);
-        const typeOffset={l1:-.22,l2:.16,l3:-.08,l4:.1,metric:0}[node.type]||0;
-        node.x=centerX+Math.cos(angle+typeOffset)*radius;
-        node.y=centerY+Math.sin(angle+typeOffset)*radius*.74;
-        node.targetX=centerX;node.targetY=centerY;node.vx=0;node.vy=0;
+      Object.entries(this.model.groups).forEach(([type])=>{
+        const group=this.nodes.filter(node=>node.type===type).sort((a,b)=>(degree.get(b)||0)-(degree.get(a)||0)||a.label.localeCompare(b.label,'zh-CN'));
+        const phase={l1:-Math.PI/2,l2:-Math.PI/2+.3,l3:-Math.PI/2-.18,l4:-Math.PI/2+.14,metric:-Math.PI/2-.06}[type]||0;
+        group.forEach((node,index)=>{
+          const angle=phase+(Math.PI*2*index/Math.max(1,group.length));
+          const jitter=type==='metric'?((index%3)-1)*5:type==='l4'?((index%2)*2-1)*3:0;
+          const radius=maxRadius*RING_RATIO[type]+jitter;
+          node.x=centerX+Math.cos(angle)*radius;
+          node.y=centerY+Math.sin(angle)*radius*.82;
+          node.targetX=node.x;node.targetY=node.y;node.vx=0;node.vy=0;
+        });
       });
+      this.maxRadius=maxRadius;
       this.alpha=.9;
     }
     radius(node){return node.type==='l1'?12:node.type==='l2'?11:node.type==='l3'?10:node.type==='l4'?8:5.5}
@@ -113,7 +119,7 @@
     wheel(event){event.preventDefault();const factor=event.deltaY<0?1.12:.89;const before=this.graphPoint(event);this.scale=clamp(this.scale*factor,.42,2.6);const after=this.graphPoint(event);this.tx+=(after.x-before.x)*this.scale;this.ty+=(after.y-before.y)*this.scale;this.draw()}
     zoom(factor){this.scale=clamp(this.scale*factor,.42,2.6);this.draw()}
     fit(){
-      const xs=this.nodes.map(n=>n.x),ys=this.nodes.map(n=>n.y),minX=Math.min(...xs)-70,maxX=Math.max(...xs)+70,minY=Math.min(...ys)-48,maxY=Math.max(...ys)+48;
+      const xs=this.nodes.map(n=>n.x),ys=this.nodes.map(n=>n.y),minX=Math.min(...xs)-112,maxX=Math.max(...xs)+112,minY=Math.min(...ys)-64,maxY=Math.max(...ys)+64;
       this.scale=clamp(Math.min((this.W-48)/(maxX-minX),(this.H-52)/(maxY-minY)),.48,1.25);
       this.tx=(this.W/2-(minX+maxX)/2)*this.scale;this.ty=(this.H/2-(minY+maxY)/2)*this.scale;this.draw();
     }
@@ -121,10 +127,13 @@
     related(node){const result=new Set([node]);this.incident(node).forEach(edge=>{result.add(edge.source);result.add(edge.target)});return result}
     physics(){
       if(this.paused||this.alpha<.006)return;
-      const centerX=this.W/2,centerY=this.H/2;
-      for(const node of this.nodes){node.vx+=(centerX-node.x)*.0018*this.alpha;node.vy+=(centerY-node.y)*.0018*this.alpha}
+      for(const node of this.nodes){
+        if(node===this.dragNode)continue;
+        const anchor=node.type==='metric'?.0042:.0052;
+        node.vx+=(node.targetX-node.x)*anchor*this.alpha;node.vy+=(node.targetY-node.y)*anchor*this.alpha;
+      }
       for(const edge of this.edges){
-        const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,ideal=edge.kind==='relation'?112:72;
+        const dx=edge.target.x-edge.source.x,dy=edge.target.y-edge.source.y,distance=Math.sqrt(dx*dx+dy*dy)||1,depthGap=Math.abs((DEPTH[edge.target.type]||0)-(DEPTH[edge.source.type]||0)),ideal=edge.kind==='relation'?118:Math.max(62,(this.maxRadius||240)*(.17+depthGap*.035));
         const lifted=this.dragNode&&(edge.source===this.dragNode||edge.target===this.dragNode);
         const force=(distance-ideal)*(lifted?.022:.0032)*this.alpha,nx=dx/distance,ny=dy/distance;
         edge.source.vx+=nx*force;edge.source.vy+=ny*force;edge.target.vx-=nx*force;edge.target.vy-=ny*force;
@@ -141,6 +150,9 @@
       if(!this.ctx||!this.W)return;const c=this.ctx,d=this.dpr;c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,this.W,this.H);
       const glow=this.dragNode||this.focus,related=glow?this.related(glow):null;
       c.save();c.translate(this.W/2+this.tx,this.H/2+this.ty);c.scale(this.scale,this.scale);c.translate(-this.W/2,-this.H/2);
+      c.save();c.globalAlpha=1;c.setLineDash([2/this.scale,7/this.scale]);
+      Object.entries(RING_RATIO).forEach(([type,ratio],index)=>{const radius=(this.maxRadius||Math.min(this.W,this.H)*.41)*ratio;c.beginPath();c.ellipse(this.W/2,this.H/2,radius,radius*.82,0,0,Math.PI*2);c.strokeStyle=index===4?'rgba(125,211,252,.13)':'rgba(151,172,207,.075)';c.lineWidth=(index===4?1:.7)/this.scale;c.stroke()});
+      c.restore();
       for(const edge of this.edges){
         const active=!!glow&&(edge.source===glow||edge.target===glow),dim=!!glow&&!active;
         c.beginPath();c.moveTo(edge.source.x,edge.source.y);c.lineTo(edge.target.x,edge.target.y);
