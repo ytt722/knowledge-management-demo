@@ -886,3 +886,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @keyframes panoramaStarDrift{0%{transform:translate3d(-1.5%,-1%,0)}50%{transform:translate3d(1.5%,1%,0)}100%{transform:translate3d(-1.5%,-1%,0)}}
 @keyframes panoramaStarPulse{0%{opacity:.12;transform:scale(.99)}48%{opacity:.32}100%{opacity:.18;transform:scale(1.015)}}
 @media(prefers-reduced-motion:reduce){.panorama-canvas-wrap:before,.panorama-canvas-wrap:after{animation:none!important;transform:none!important}.panorama-canvas-wrap:before{opacity:.28}.panorama-canvas-wrap:after{opacity:.16}}
+
+/* v135 · single-path intake and four-stage knowledge journey */
+.journey-group-grid{grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr) 18px minmax(0,1fr) 18px minmax(0,1fr)}
+.journey-value-strip{grid-template-columns:repeat(4,minmax(112px,1fr)) minmax(220px,1.45fr)}
+@media(max-width:1150px){.journey-group-grid{grid-template-columns:240px 18px 240px 18px 240px 18px 240px}.journey-value-strip{grid-template-columns:repeat(4,1fr)}.journey-value-strip p{grid-column:1/-1}}
+@media(max-width:700px){.journey-value-strip{grid-template-columns:1fr 1fr}.journey-value-strip p{grid-column:1/-1}}
