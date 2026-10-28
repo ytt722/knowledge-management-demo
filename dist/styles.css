@@ -860,7 +860,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .kg-metric-card-sheet.flat .kg-card-field.is-empty>p{color:#98a5b6;text-align:left}
 
 /* v141 · compact knowledge-card overview and footer editing controls */
-.metric-card-v2 .metric-card-summary-fields{padding-bottom:4px}.metric-card-v2 .metric-card-summary-fields>div{min-height:84px}.metric-card-v2 .metric-card-summary-fields p{-webkit-line-clamp:3}.modal-foot .kg-modal-edit{margin-left:0}.modal-foot .kg-modal-save[hidden]{display:none}.modal-foot #modal-confirm:disabled{cursor:not-allowed;opacity:.45;box-shadow:none}.kg-metric-card-sheet.flat>header{min-height:54px;box-sizing:border-box}.kg-metric-card-sheet.flat>header h3{width:100%}
+.metric-card-v2 .metric-card-summary-fields{padding-bottom:4px}.metric-card-v2 .metric-card-summary-fields>div{min-height:50px}.metric-card-v2 .metric-card-summary-fields p{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;-webkit-line-clamp:unset}.modal-foot .kg-modal-edit{margin-left:0}.modal-foot .kg-modal-save[hidden]{display:none}.modal-foot #modal-confirm:disabled{cursor:not-allowed;opacity:.45;box-shadow:none}.kg-metric-card-sheet.flat>header{min-height:54px;box-sizing:border-box}.kg-metric-card-sheet.flat>header h3{width:100%}
 .metric-knowledge-card>footer.metric-card-action-only{justify-content:flex-end}.metric-knowledge-card>footer.metric-card-action-only button{margin-left:0}
 
 /* v128 — unobscured sticky navigation and file-list lineage */
