@@ -4,6 +4,7 @@ import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('./dist/', import.meta.url)));
+const presentationFile = resolve(fileURLToPath(new URL('./knowledge-set-management-solution.html', import.meta.url)));
 const port = Number(process.env.PORT) || 4173;
 const mime = {
   '.html': 'text/html; charset=utf-8',
@@ -19,8 +20,8 @@ createServer(async (request, response) => {
   try {
     const url = new URL(request.url || '/', 'http://localhost');
     const relative = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
-    const file = resolve(root, '.' + relative);
-    if (file !== root && !file.startsWith(root + sep)) throw new Error('Invalid path');
+    const file = relative === '/knowledge-set-management-solution.html' ? presentationFile : resolve(root, '.' + relative);
+    if (file !== presentationFile && file !== root && !file.startsWith(root + sep)) throw new Error('Invalid path');
     const info = await stat(file);
     if (!info.isFile()) throw new Error('Not a file');
     response.writeHead(200, {
